@@ -22,7 +22,7 @@ public class ReservationService {
             return;
         }
 
-        Reservation reservation = new Reservation(name, startTime, endTime, spaceId);
+        Reservation reservation = new Reservation(name, spaceId, startTime, endTime);
         int id = ++lastId;
         reservation.setId(id);
         reservations.add(reservation);

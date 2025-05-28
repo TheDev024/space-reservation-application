@@ -32,16 +32,20 @@ public final class WorkspaceService {
         workspaces.add(workspace);
 
         System.out.println("Workspace created successfully!\nWorkspace ID: " + id);
+    }
 
-//        System.out.print("Enter workspace name: ");
-//        String name = scanner.next();
-//
-//        WorkspaceType type = getType();
-//
-//        System.out.print("Enter workspace price: ");
-//        double price = scanner.nextDouble();
-//
-//        Workspace workspace = new Workspace(name, type, price);
+    public void editWorkspace(int id, Workspace workspace) {
+        Workspace reference = getWorkspaceById(id);
+
+        if (workspace == null) {
+            System.out.println("Workspace not found!");
+            return;
+        }
+
+        workspace.setId(id);
+        workspaces.set(workspaces.indexOf(reference), workspace);
+
+        System.out.println("Workspace updated successfully!");
     }
 
     public void deleteWorkspace(int id) {
@@ -61,25 +65,4 @@ public final class WorkspaceService {
 
         return reservations.stream().noneMatch(reservation -> reservation.getStartTime().after(currentTime) && reservation.getEndTime().before(currentTime));
     }
-
-//    private WorkspaceType getType() {
-//        System.out.print("Enter workspace type (1 - OPEN 2 - PRIVATE 3 - ROOM): ");
-//        int typeNo = scanner.nextInt();
-//
-//        WorkspaceType type = null;
-//
-//        switch (typeNo) {
-//            case 1:
-//                type = WorkspaceType.OPEN;
-//                break;
-//            case 2:
-//                type = WorkspaceType.PRIVATE;
-//                break;
-//            case 3:
-//                type = WorkspaceType.ROOM;
-//                break;
-//        }
-//
-//        return type;
-//    }
 }

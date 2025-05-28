@@ -4,23 +4,19 @@ import java.util.Date;
 
 public class Reservation {
     private int id;
-
-    private String name;
-
+    private final String name;
+    private final int spaceId;
     private Date startTime;
-
     private Date endTime;
 
-    private int spaceId;
-
-    public Reservation(String name, Date startTime, Date endTime, int spaceId) {
+    public Reservation(String name, int spaceId, Date startTime, Date endTime) {
         this.name = name;
+
+        this.spaceId = spaceId;
 
         this.startTime = startTime;
 
         this.endTime = endTime;
-
-        this.spaceId = spaceId;
     }
 
     public int getId() {
@@ -29,6 +25,10 @@ public class Reservation {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public int getSpaceId() {

@@ -5,11 +5,11 @@ import org.td024.enums.WorkspaceType;
 public class Workspace {
     private int id;
 
-    private final String name;
+    private String name;
 
-    private final WorkspaceType type;
+    private WorkspaceType type;
 
-    private final double price;
+    private double price;
 
     public Workspace(String name, WorkspaceType type, double price) {
         this.name = name;
@@ -31,11 +31,23 @@ public class Workspace {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public WorkspaceType getType() {
         return type;
     }
 
+    public void setType(WorkspaceType type) {
+        this.type = type;
+    }
+
     public double getPrice() {
         return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 }
