@@ -11,16 +11,12 @@ public class Workspace {
 
     private final double price;
 
-    private boolean isAvailable;
-
     public Workspace(String name, WorkspaceType type, double price) {
         this.name = name;
 
         this.type = type;
 
         this.price = price;
-
-        this.isAvailable = false;
     }
 
     public int getId() {
@@ -41,13 +37,5 @@ public class Workspace {
 
     public double getPrice() {
         return price;
-    }
-
-    public boolean isAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(boolean available) {
-        isAvailable = available;
     }
 }
