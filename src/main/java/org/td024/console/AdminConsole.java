@@ -10,12 +10,15 @@ import java.util.Scanner;
 public class AdminConsole {
     private static final Scanner scanner = new Scanner(System.in);
     private static final WorkspaceService workspaceService = new WorkspaceService();
+    private static final WorkspaceConsole workspaceConsole = new WorkspaceConsole();
+    private static final ReservationConsole reservationConsole = new ReservationConsole();
+
 
     public void menu() {
         System.out.println("\n== Welcome to the ADMIN CONSOLE ==");
         boolean active = true;
         while (active) {
-            System.out.println("\nPlease select an option:\n1 - Create a new workspace\n2 - Edit a workspace\n3 - Delete a workspace\n4 - List all workspaces\n5 - List all available workspaces\n0 - Back");
+            System.out.print("\nPlease select an option:\n1 - Create a new workspace\n2 - Edit a workspace\n3 - Delete a workspace\n4 - List all workspaces\n5 - List all available workspaces\n6 - List all reservations\n\n0 - Back\n\n> ");
             String option = scanner.nextLine();
 
             switch (option) {
@@ -32,11 +35,15 @@ public class AdminConsole {
                     break;
 
                 case "4":
-                    listWorkspaces();
+                    workspaceConsole.listWorkspaces();
                     break;
 
                 case "5":
-                    listAvailableWorkspaces();
+                    workspaceConsole.listAvailableWorkspaces();
+                    break;
+
+                case "6":
+                    reservationConsole.listReservations();
                     break;
 
                 case "0":
@@ -56,7 +63,7 @@ public class AdminConsole {
         System.out.print("Enter workspace name: ");
         String name = scanner.nextLine();
 
-        System.out.print("Enter workspace type\n(1 - OPEN; 2 - PRIVATE; 3 - ROOM): ");
+        System.out.print("Enter workspace type (1 - OPEN; 2 - PRIVATE; 3 - ROOM): ");
         int typeNo = scanner.nextInt();
         scanner.nextLine();
         WorkspaceType type = getType(typeNo);
@@ -82,7 +89,7 @@ public class AdminConsole {
             System.out.println("Nothing to edit!");
             return;
         }
-        printWorkspaces(workspaces);
+        workspaceConsole.printWorkspaces(workspaces);
 
         System.out.print("Enter workspace ID to edit (0 - Cancel): ");
         int id = scanner.nextInt();
@@ -129,7 +136,7 @@ public class AdminConsole {
             System.out.println("Nothing to delete!");
             return;
         }
-        printWorkspaces(workspaces);
+        workspaceConsole.printWorkspaces(workspaces);
 
         System.out.print("Enter workspace ID to delete (0 - Cancel): ");
         int id = scanner.nextInt();
@@ -140,30 +147,6 @@ public class AdminConsole {
         }
 
         workspaceService.deleteWorkspace(id);
-    }
-
-    private void listWorkspaces() {
-        System.out.println("\n== ALL WORKSPACES ==\n");
-
-        List<Workspace> workspaces = workspaceService.getAllWorkspaces();
-        printWorkspaces(workspaces);
-    }
-
-    private void listAvailableWorkspaces() {
-        System.out.println("\n== AVAILABLE WORKSPACES ==\n");
-
-        List<Workspace> workspaces = workspaceService.getAvailableWorkspaces();
-        printWorkspaces(workspaces);
-    }
-
-    private void printWorkspaces(List<Workspace> workspaces) {
-        if (workspaces.isEmpty()) System.out.println("No workspaces found!");
-        else {
-            System.out.printf("%3s: %-20s %-10s %s\n", "ID", "Name", "Type", "Price");
-            for (Workspace workspace : workspaces) {
-                System.out.printf("%3d: %-20s %-10s %3.2f\n", workspace.getId(), workspace.getName(), workspace.getType(), workspace.getPrice());
-            }
-        }
     }
 
     private WorkspaceType getType(int typeNo) {

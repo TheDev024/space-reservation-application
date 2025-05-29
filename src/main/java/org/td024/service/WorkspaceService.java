@@ -1,5 +1,6 @@
 package org.td024.service;
 
+import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 import org.td024.entity.Workspace;
 
@@ -21,8 +22,8 @@ public final class WorkspaceService {
         return workspaces;
     }
 
-    public List<Workspace> getAvailableWorkspaces() {
-        return workspaces.stream().filter(workspace -> isWorkspaceAvailable(workspace.getId())).collect(Collectors.toList());
+    public List<Workspace> getAvailableWorkspaces(Interval interval) {
+        return workspaces.stream().filter(workspace -> isWorkspaceAvailable(workspace.getId(), interval)).collect(Collectors.toList());
     }
 
     public void createWorkspace(Workspace workspace) {
@@ -49,6 +50,12 @@ public final class WorkspaceService {
     }
 
     public void deleteWorkspace(int id) {
+        List<Reservation> reservations = reservationService.getAllReservations();
+        if (reservations.stream().anyMatch(reservation -> reservation.getSpaceId() == id && reservation.getInterval().getEndTime().after(new Date()))) {
+            System.out.println("This workspace cannet be deleted because there are reservations on it!");
+            return;
+        }
+
         workspaces.removeIf(workspace -> workspace.getId() == id);
         System.out.println("Workspace deleted successfully!");
     }
@@ -57,12 +64,10 @@ public final class WorkspaceService {
         return workspaces.stream().anyMatch(workspace -> workspace.getId() == id);
     }
 
-    public boolean isWorkspaceAvailable(int id) {
-        Date currentTime = new Date();
-
+    public boolean isWorkspaceAvailable(int id, Interval interval) {
         List<Reservation> reservations = reservationService.getAllReservations();
         reservations = reservations.stream().filter(reservation -> reservation.getSpaceId() == id).collect(Collectors.toList());
 
-        return reservations.stream().noneMatch(reservation -> reservation.getStartTime().after(currentTime) && reservation.getEndTime().before(currentTime));
+        return reservations.stream().noneMatch(reservation -> Interval.isOverlap(interval, reservation.getInterval()));
     }
 }

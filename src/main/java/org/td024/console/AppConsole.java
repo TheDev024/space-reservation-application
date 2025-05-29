@@ -12,7 +12,7 @@ public class AppConsole {
         boolean active = true;
 
         while (active) {
-            System.out.println("\nPlease login to the system:\n1 - Admin login\n2 - User login\n\n0 - Exit");
+            System.out.print("\nPlease login to the system:\n1 - Admin login\n2 - User login\n\n0 - Exit\n\n> ");
             String option = scanner.nextLine();
 
             switch (option) {
@@ -34,6 +34,6 @@ public class AppConsole {
             }
         }
 
-        System.out.println("Goodbye!");
+        System.out.println("\nGoodbye!");
     }
 }

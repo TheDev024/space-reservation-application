@@ -1,22 +1,17 @@
 package org.td024.entity;
 
-import java.util.Date;
-
 public class Reservation {
     private int id;
     private final String name;
     private final int spaceId;
-    private Date startTime;
-    private Date endTime;
+    private final Interval interval;
 
-    public Reservation(String name, int spaceId, Date startTime, Date endTime) {
+    public Reservation(String name, int spaceId, Interval interval) {
         this.name = name;
 
         this.spaceId = spaceId;
 
-        this.startTime = startTime;
-
-        this.endTime = endTime;
+        this.interval = interval;
     }
 
     public int getId() {
@@ -35,19 +30,7 @@ public class Reservation {
         return spaceId;
     }
 
-    public Date getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
+    public Interval getInterval() {
+        return interval;
     }
 }

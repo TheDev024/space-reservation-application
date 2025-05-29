@@ -1,9 +1,9 @@
 package org.td024.service;
 
+import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class ReservationService {
@@ -11,18 +11,26 @@ public class ReservationService {
     private static final WorkspaceService workspaceService = new WorkspaceService();
     private static int lastId = 0;
 
-    public void makeReservation(String name, int spaceId, Date startTime, Date endTime) {
-        if (workspaceService.workspaceExists(spaceId)) {
+    public Reservation getReservationById(int id) {
+        return reservations.stream().filter(reservation -> reservation.getId() == id).findFirst().orElse(null);
+    }
+
+    public List<Reservation> getAllReservations() {
+        return reservations;
+    }
+
+    public void makeReservation(String name, int spaceId, Interval interval) {
+        if (!workspaceService.workspaceExists(spaceId)) {
             System.out.println("Workspace not found!");
             return;
         }
 
-        if (!workspaceService.isWorkspaceAvailable(spaceId)) {
+        if (!workspaceService.isWorkspaceAvailable(spaceId, interval)) {
             System.out.println("Workspace is not available!");
             return;
         }
 
-        Reservation reservation = new Reservation(name, spaceId, startTime, endTime);
+        Reservation reservation = new Reservation(name, spaceId, interval);
         int id = ++lastId;
         reservation.setId(id);
         reservations.add(reservation);
@@ -35,13 +43,5 @@ public class ReservationService {
         reservations.remove(reservation);
 
         System.out.println("Reservation cancelled successfully!");
-    }
-
-    public Reservation getReservationById(int id) {
-        return reservations.stream().filter(reservation -> reservation.getId() == id).findFirst().orElse(null);
-    }
-
-    public List<Reservation> getAllReservations() {
-        return reservations;
     }
 }
