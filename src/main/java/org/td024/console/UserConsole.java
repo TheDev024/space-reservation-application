@@ -3,6 +3,8 @@ package org.td024.console;
 import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 import org.td024.entity.Workspace;
+import org.td024.exception.DatetimeParseException;
+import org.td024.exception.InvalidTimeIntervalException;
 import org.td024.service.ReservationService;
 import org.td024.service.WorkspaceService;
 
@@ -56,7 +58,14 @@ public class UserConsole {
 
     private void makeReservation() {
         System.out.println("Enter reservation interval");
-        Interval interval = intervalConsole.getInterval();
+        Interval interval;
+
+        try {
+            interval = intervalConsole.getInterval();
+        } catch (InvalidTimeIntervalException | DatetimeParseException e) {
+            System.out.println("Invalid interval: " + e.getMessage());
+            return;
+        }
 
         if (interval.getStartTime().before(new Date())) {
             System.out.println("Reservation can't be made in the past!");

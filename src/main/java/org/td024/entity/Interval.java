@@ -1,5 +1,7 @@
 package org.td024.entity;
 
+import org.td024.exception.InvalidTimeIntervalException;
+
 import java.util.Date;
 
 public class Interval {
@@ -23,7 +25,7 @@ public class Interval {
         return endTime;
     }
 
-    public static class IntervalBuilder {
+    public static final class IntervalBuilder {
         private Date startTime;
         private Date endTime;
 
@@ -37,7 +39,10 @@ public class Interval {
             return this;
         }
 
-        public Interval build() {
+        public Interval build() throws InvalidTimeIntervalException {
+            if (startTime.after(endTime))
+                throw new InvalidTimeIntervalException("Start time must be before the end time!");
+
             return new Interval(this);
         }
     }
