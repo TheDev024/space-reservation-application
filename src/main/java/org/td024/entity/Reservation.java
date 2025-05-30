@@ -1,10 +1,10 @@
 package org.td024.entity;
 
 public class Reservation {
-    private int id;
     private final String name;
     private final int spaceId;
     private final Interval interval;
+    private int id;
 
     public Reservation(String name, int spaceId, Interval interval) {
         this.name = name;

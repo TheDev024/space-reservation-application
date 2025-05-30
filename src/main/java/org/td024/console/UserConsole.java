@@ -6,14 +6,12 @@ import org.td024.entity.Workspace;
 import org.td024.service.ReservationService;
 import org.td024.service.WorkspaceService;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
-/**
- * TODO#1: Available workspace logic (check by interval)
- * TODO#2: Reservation logic (get interval first)
- * TODO#3: Workspace delete logic (check if there are reservations)
- */
+import static org.td024.console.util.ConsoleReader.readInt;
+import static org.td024.console.util.ConsoleReader.readLine;
+
 public class UserConsole {
     private static final WorkspaceConsole workspaceConsole = new WorkspaceConsole();
     private static final ReservationConsole reservationConsole = new ReservationConsole();
@@ -21,15 +19,12 @@ public class UserConsole {
     private static final ReservationService reservationService = new ReservationService();
     private static final WorkspaceService workspaceService = new WorkspaceService();
 
-    private static final Scanner scanner = new Scanner(System.in);
-
     public void menu() {
         System.out.println("\n== Welcome to the USER CONSOLE ==");
         boolean active = true;
 
         while (active) {
-            System.out.print("\nPlease select an option:\n1 - List available workspaces\n2 - Make reservation\n3 - List my reservations\n4 - Cancel reservation\n\n0 - Back\n\n> ");
-            String option = scanner.nextLine();
+            String option = readLine("\nPlease select an option:\n1 - List available workspaces\n2 - Make reservation\n3 - List my reservations\n4 - Cancel reservation\n\n0 - Back\n\n> ");
 
             switch (option) {
                 case "1":
@@ -63,6 +58,11 @@ public class UserConsole {
         System.out.println("Enter reservation interval");
         Interval interval = intervalConsole.getInterval();
 
+        if (interval.getStartTime().before(new Date())) {
+            System.out.println("Reservation can't be made in the past!");
+            return;
+        }
+
         List<Workspace> availableWorkspaces = workspaceService.getAvailableWorkspaces(interval);
         if (availableWorkspaces.isEmpty()) {
             System.out.println("No available workspace to reserve!");
@@ -70,14 +70,9 @@ public class UserConsole {
         }
 
         workspaceConsole.printWorkspaces(availableWorkspaces);
-        System.out.print("Enter workspace ID to reserve (0 - Cancel): ");
-        int spaceId = scanner.nextInt();
-        scanner.nextLine();
-
+        int spaceId = readInt("Enter workspace ID to reserve (0 - Cancel): ");
         if (spaceId == 0) return;
-
-        System.out.print("Enter reservation name: ");
-        String name = scanner.nextLine();
+        String name = readLine("Enter reservation name: ");
 
         reservationService.makeReservation(name, spaceId, interval);
     }
@@ -100,14 +95,11 @@ public class UserConsole {
             System.out.println("No reservation to cancel!");
             return;
         }
-
         reservationConsole.printReservations(reservations);
-        System.out.print("Enter reservation ID to cancel (0 - Cancel): ");
 
-        int id = scanner.nextInt();
-        scanner.nextLine();
-
+        int id = readInt("Enter reservation ID to cancel (0 - Cancel): ");
         if (id == 0) return;
+
         reservationService.cancelReservation(id);
     }
 }

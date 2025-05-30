@@ -5,10 +5,10 @@ import org.td024.enums.WorkspaceType;
 import org.td024.service.WorkspaceService;
 
 import java.util.List;
-import java.util.Scanner;
+
+import static org.td024.console.util.ConsoleReader.*;
 
 public class AdminConsole {
-    private static final Scanner scanner = new Scanner(System.in);
     private static final WorkspaceService workspaceService = new WorkspaceService();
     private static final WorkspaceConsole workspaceConsole = new WorkspaceConsole();
     private static final ReservationConsole reservationConsole = new ReservationConsole();
@@ -18,8 +18,7 @@ public class AdminConsole {
         System.out.println("\n== Welcome to the ADMIN CONSOLE ==");
         boolean active = true;
         while (active) {
-            System.out.print("\nPlease select an option:\n1 - Create a new workspace\n2 - Edit a workspace\n3 - Delete a workspace\n4 - List all workspaces\n5 - List all available workspaces\n6 - List all reservations\n\n0 - Back\n\n> ");
-            String option = scanner.nextLine();
+            String option = readLine("\nPlease select an option:\n1 - Create a new workspace\n2 - Edit a workspace\n3 - Delete a workspace\n4 - List all workspaces\n5 - List all available workspaces\n6 - List all reservations\n\n0 - Back\n\n> ");
 
             switch (option) {
                 case "1":
@@ -60,22 +59,13 @@ public class AdminConsole {
     private void createWorkspace() {
         System.out.println("\n== Create a new workspace ==\n");
 
-        System.out.print("Enter workspace name: ");
-        String name = scanner.nextLine();
+        String name = readLine("Enter workspace name: ");
+        int typeNo = readInt("Enter workspace type (1 - OPEN; 2 - PRIVATE; 3 - ROOM): ");
 
-        System.out.print("Enter workspace type (1 - OPEN; 2 - PRIVATE; 3 - ROOM): ");
-        int typeNo = scanner.nextInt();
-        scanner.nextLine();
         WorkspaceType type = getType(typeNo);
+        if (type == null) return;
 
-        if (type == null) {
-            System.out.println("Invalid workspace type!");
-            return;
-        }
-
-        System.out.print("Enter workspace price: ");
-        double price = scanner.nextDouble();
-        scanner.nextLine();
+        double price = readDouble("Enter workspace price: ");
 
         Workspace workspace = new Workspace(name, type, price);
         workspaceService.createWorkspace(workspace);
@@ -91,24 +81,17 @@ public class AdminConsole {
         }
         workspaceConsole.printWorkspaces(workspaces);
 
-        System.out.print("Enter workspace ID to edit (0 - Cancel): ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-
-        if (id == 0) {
-            return;
-        }
+        int id = readInt("Enter workspace ID to edit (0 - Cancel): ");
+        if (id == 0) return;
 
         Workspace workspace = workspaceService.getWorkspaceById(id);
 
         String name = workspace.getName();
-        System.out.print("Enter new workspace name [" + name + "] (Enter to keep the same): ");
-        name = scanner.nextLine();
+        name = readLine("Enter new workspace name [" + name + "] (Enter to keep the same): ");
         if (!name.isEmpty()) workspace.setName(name);
 
         WorkspaceType type = workspace.getType();
-        System.out.print("Enter new workspace type [" + type + "]\n(1 - OPEN; 2 - PRIVATE; 3 - ROOM)\nEnter to keep the same: ");
-        String typeStr = scanner.nextLine();
+        String typeStr = readLine("Enter new workspace type [" + type + "]\n(1 - OPEN; 2 - PRIVATE; 3 - ROOM)\nEnter to keep the same: ");
 
         if (!typeStr.isEmpty()) {
             int typeNo = Integer.parseInt(typeStr);
@@ -121,8 +104,7 @@ public class AdminConsole {
         }
 
         double price = workspace.getPrice();
-        System.out.print("Enter new workspace price [" + price + "] (Enter to keep the same): ");
-        String newPrice = scanner.nextLine();
+        String newPrice = readLine("Enter new workspace price [" + price + "] (Enter to keep the same): ");
         if (!newPrice.isEmpty()) workspace.setPrice(Double.parseDouble(newPrice));
 
         workspaceService.editWorkspace(id, workspace);
@@ -138,13 +120,8 @@ public class AdminConsole {
         }
         workspaceConsole.printWorkspaces(workspaces);
 
-        System.out.print("Enter workspace ID to delete (0 - Cancel): ");
-        int id = scanner.nextInt();
-        scanner.nextLine();
-
-        if (id == 0) {
-            return;
-        }
+        int id = readInt("Enter workspace ID to delete (0 - Cancel): ");
+        if (id == 0) return;
 
         workspaceService.deleteWorkspace(id);
     }
@@ -161,6 +138,10 @@ public class AdminConsole {
                 break;
             case 3:
                 type = WorkspaceType.ROOM;
+                break;
+
+            default:
+                System.out.println("Invalid workspace type number: " + typeNo);
                 break;
         }
 

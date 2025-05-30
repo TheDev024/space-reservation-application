@@ -22,6 +22,7 @@ public class WorkspaceConsole {
 
         System.out.println("Enter interval to check");
         Interval interval = intervalConsole.getInterval();
+        if (interval == null) return;
 
         List<Workspace> workspaces = workspaceService.getAvailableWorkspaces(interval);
         printWorkspaces(workspaces);

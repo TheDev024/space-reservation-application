@@ -6,9 +6,9 @@ public class Interval {
     private final Date startTime;
     private final Date endTime;
 
-    public Interval(Date startTime, Date endTime) {
-        this.startTime = startTime;
-        this.endTime = endTime;
+    Interval(IntervalBuilder builder) {
+        this.startTime = builder.startTime;
+        this.endTime = builder.endTime;
     }
 
     public static boolean isOverlap(Interval interval1, Interval interval2) {
@@ -21,5 +21,24 @@ public class Interval {
 
     public Date getEndTime() {
         return endTime;
+    }
+
+    public static class IntervalBuilder {
+        private Date startTime;
+        private Date endTime;
+
+        public IntervalBuilder startTime(Date startTime) {
+            this.startTime = startTime;
+            return this;
+        }
+
+        public IntervalBuilder endTime(Date endTime) {
+            this.endTime = endTime;
+            return this;
+        }
+
+        public Interval build() {
+            return new Interval(this);
+        }
     }
 }
