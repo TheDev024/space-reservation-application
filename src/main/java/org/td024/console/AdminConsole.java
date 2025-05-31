@@ -4,6 +4,7 @@ import org.td024.entity.Workspace;
 import org.td024.enums.WorkspaceType;
 import org.td024.service.WorkspaceService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.td024.console.util.ConsoleReader.*;
@@ -65,7 +66,7 @@ public class AdminConsole {
         WorkspaceType type = getType(typeNo);
         if (type == null) return;
 
-        double price = readDouble("Enter workspace price: ");
+        BigDecimal price = readBigDecimal("Enter workspace price: ");
 
         Workspace workspace = new Workspace(name, type, price);
         workspaceService.createWorkspace(workspace);
@@ -103,9 +104,9 @@ public class AdminConsole {
             workspace.setType(type);
         }
 
-        double price = workspace.getPrice();
+        BigDecimal price = workspace.getPrice();
         String newPrice = readLine("Enter new workspace price [" + price + "] (Enter to keep the same): ");
-        if (!newPrice.isEmpty()) workspace.setPrice(Double.parseDouble(newPrice));
+        if (!newPrice.isEmpty()) workspace.setPrice(new BigDecimal(newPrice));
 
         workspaceService.editWorkspace(id, workspace);
     }

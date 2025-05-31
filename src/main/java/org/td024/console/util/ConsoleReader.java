@@ -1,5 +1,6 @@
 package org.td024.console.util;
 
+import java.math.BigDecimal;
 import java.util.Scanner;
 
 public final class ConsoleReader {
@@ -25,14 +26,14 @@ public final class ConsoleReader {
         return readInt();
     }
 
-    public static double readDouble() {
-        double value = scanner.nextDouble();
+    public static BigDecimal readBigDecimal() {
+        BigDecimal value = new BigDecimal(scanner.next());
         scanner.nextLine();
         return value;
     }
 
-    public static double readDouble(String prompt) {
+    public static BigDecimal readBigDecimal(String prompt) {
         System.out.print(prompt);
-        return readDouble();
+        return readBigDecimal();
     }
 }
