@@ -1,9 +1,14 @@
 package org.td024.entity;
 
-public class Reservation {
+import java.io.Serializable;
+
+public class Reservation extends Entity implements Serializable {
     private final String name;
+
     private final int spaceId;
+
     private final Interval interval;
+
     private int id;
 
     public Reservation(String name, int spaceId, Interval interval) {

@@ -2,9 +2,10 @@ package org.td024.entity;
 
 import org.td024.exception.InvalidTimeIntervalException;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class Interval {
+public class Interval implements Serializable {
     private final Date startTime;
     private final Date endTime;
 
