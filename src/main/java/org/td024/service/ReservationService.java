@@ -6,8 +6,9 @@ import org.td024.entity.Reservation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReservationService {
+public class ReservationService extends StatefulService<Reservation> {
     private static final List<Reservation> reservations = new ArrayList<>();
+    private static final String STATE_FILE_PATH = ".reservations";
     private static final WorkspaceService workspaceService = new WorkspaceService();
     private static int lastId = 0;
 
@@ -43,5 +44,25 @@ public class ReservationService {
         reservations.remove(reservation);
 
         System.out.println("Reservation cancelled successfully!");
+    }
+
+    @Override
+    protected String getFilePath() {
+        return STATE_FILE_PATH;
+    }
+
+    @Override
+    protected void setLastId(int id) {
+        lastId = id;
+    }
+
+    @Override
+    protected List<Reservation> getData() {
+        return reservations;
+    }
+
+    @Override
+    protected void setData(List<Reservation> data) {
+        reservations.addAll(data);
     }
 }

@@ -9,9 +9,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public final class WorkspaceService {
+public final class WorkspaceService extends StatefulService<Workspace> {
     private static final List<Workspace> workspaces = new ArrayList<>();
     private static final ReservationService reservationService = new ReservationService();
+    private static final String STATE_FILE_PATH = ".workspaces";
     private static int lastId = 0;
 
     public Workspace getWorkspaceById(int id) {
@@ -69,5 +70,25 @@ public final class WorkspaceService {
         reservations = reservations.stream().filter(reservation -> reservation.getSpaceId() == id).collect(Collectors.toList());
 
         return reservations.stream().noneMatch(reservation -> Interval.isOverlap(interval, reservation.getInterval()));
+    }
+
+    @Override
+    protected String getFilePath() {
+        return STATE_FILE_PATH;
+    }
+
+    @Override
+    protected void setLastId(int id) {
+        lastId = id;
+    }
+
+    @Override
+    protected List<Workspace> getData() {
+        return workspaces;
+    }
+
+    @Override
+    protected void setData(List<Workspace> data) {
+        workspaces.addAll(data);
     }
 }

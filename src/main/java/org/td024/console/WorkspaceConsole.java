@@ -2,6 +2,8 @@ package org.td024.console;
 
 import org.td024.entity.Interval;
 import org.td024.entity.Workspace;
+import org.td024.exception.DatetimeParseException;
+import org.td024.exception.InvalidTimeIntervalException;
 import org.td024.service.WorkspaceService;
 
 import java.util.List;
@@ -21,8 +23,14 @@ public class WorkspaceConsole {
         System.out.println("\n== AVAILABLE WORKSPACES ==\n");
 
         System.out.println("Enter interval to check");
-        Interval interval = intervalConsole.getInterval();
-        if (interval == null) return;
+        Interval interval;
+
+        try {
+            interval = intervalConsole.getInterval();
+        } catch (InvalidTimeIntervalException | DatetimeParseException e) {
+            System.out.println("Invalid interval: " + e.getMessage());
+            return;
+        }
 
         List<Workspace> workspaces = workspaceService.getAvailableWorkspaces(interval);
         printWorkspaces(workspaces);

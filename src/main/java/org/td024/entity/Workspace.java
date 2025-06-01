@@ -2,16 +2,19 @@ package org.td024.entity;
 
 import org.td024.enums.WorkspaceType;
 
-public class Workspace {
+import java.io.Serializable;
+import java.math.BigDecimal;
+
+public class Workspace extends Entity implements Serializable {
     private int id;
 
     private String name;
 
     private WorkspaceType type;
 
-    private double price;
+    private BigDecimal price;
 
-    public Workspace(String name, WorkspaceType type, double price) {
+    public Workspace(String name, WorkspaceType type, BigDecimal price) {
         this.name = name;
 
         this.type = type;
@@ -43,11 +46,11 @@ public class Workspace {
         this.type = type;
     }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(BigDecimal price) {
         this.price = price;
     }
 }
