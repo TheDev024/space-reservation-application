@@ -41,6 +41,7 @@ public class WorkspaceConsole {
         else {
             System.out.printf("%3s: %-30s %-10s %s\n", "ID", "Name", "Type", "Price");
             for (Workspace workspace : workspaces) {
+                if (workspace == null) continue;
                 System.out.printf("%3d: %-30s %-10s %3.2f\n", workspace.getId(), workspace.getName(), workspace.getType(), workspace.getPrice());
             }
         }

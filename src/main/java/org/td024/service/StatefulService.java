@@ -9,18 +9,18 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
+import java.util.ArrayList;
 
 public abstract class StatefulService<T extends Entity> {
-    protected List<T> data;
+    protected ArrayList<T> data;
 
     protected abstract String getFilePath();
 
     protected abstract void setLastId(int id);
 
-    protected abstract List<T> getData();
+    protected abstract ArrayList<T> getData();
 
-    protected abstract void setData(List<T> data);
+    protected abstract void setData(ArrayList<T> data);
 
     public void saveState() throws StateFileNotFoundException {
         try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(Paths.get(getFilePath())))) {
@@ -32,7 +32,7 @@ public abstract class StatefulService<T extends Entity> {
 
     public void loadState() throws ClassChangedException, StateFileNotFoundException {
         try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(Paths.get(getFilePath())))) {
-            List<T> loadedData = (List<T>) ois.readObject();
+            ArrayList<T> loadedData = (ArrayList<T>) ois.readObject();
             setData(loadedData);
             int lastId = loadedData.stream().mapToInt(T::getId).max().orElse(0);
             setLastId(lastId);

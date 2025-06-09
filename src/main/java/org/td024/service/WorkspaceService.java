@@ -10,16 +10,16 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public final class WorkspaceService extends StatefulService<Workspace> {
-    private static final List<Workspace> workspaces = new ArrayList<>();
+    private static final ArrayList<Workspace> workspaces = new ArrayList<>(100);
     private static final ReservationService reservationService = new ReservationService();
     private static final String STATE_FILE_PATH = ".workspaces";
     private static int lastId = 0;
 
     public Workspace getWorkspaceById(int id) {
-        return workspaces.stream().filter(workspace -> workspace.getId() == id).findFirst().orElse(null);
+        return workspaces.get(id - 1);
     }
 
-    public List<Workspace> getAllWorkspaces() {
+    public ArrayList<Workspace> getAllWorkspaces() {
         return workspaces;
     }
 
@@ -39,25 +39,25 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     public void editWorkspace(int id, Workspace workspace) {
         Workspace reference = getWorkspaceById(id);
 
-        if (workspace == null) {
+        if (reference == null) {
             System.out.println("Workspace not found!");
             return;
         }
 
         workspace.setId(id);
-        workspaces.set(workspaces.indexOf(reference), workspace);
+        workspaces.set(id - 1, workspace);
 
         System.out.println("Workspace updated successfully!");
     }
 
     public void deleteWorkspace(int id) {
-        List<Reservation> reservations = reservationService.getAllReservations();
-        if (reservations.stream().anyMatch(reservation -> reservation.getSpaceId() == id && reservation.getInterval().getEndTime().after(new Date()))) {
+        ArrayList<Reservation> reservations = reservationService.getAllReservations();
+        if (isWorkspaceReserved(id, reservations)) {
             System.out.println("This workspace cannet be deleted because there are reservations on it!");
             return;
         }
 
-        workspaces.removeIf(workspace -> workspace.getId() == id);
+        workspaces.set(id - 1, null);
         System.out.println("Workspace deleted successfully!");
     }
 
@@ -83,12 +83,16 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     @Override
-    protected List<Workspace> getData() {
+    protected ArrayList<Workspace> getData() {
         return workspaces;
     }
 
     @Override
-    protected void setData(List<Workspace> data) {
+    protected void setData(ArrayList<Workspace> data) {
         workspaces.addAll(data);
+    }
+
+    private boolean isWorkspaceReserved(int id, List<Reservation> reservations) {
+        return reservations.stream().anyMatch(reservation -> reservation.getSpaceId() == id && reservation.getInterval().getEndTime().after(new Date()));
     }
 }

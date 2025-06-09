@@ -24,6 +24,7 @@ public class ReservationConsole {
         else {
             System.out.printf("%3s: %-30s %-30s %-20s %-20s\n", "ID", "Name", "Space Name", "Start Time", "End Time");
             for (Reservation reservation : reservations) {
+                if (reservation == null) continue;
                 Workspace workspace = workspaceService.getWorkspaceById(reservation.getSpaceId());
                 String workspaceName = workspace.getName();
 

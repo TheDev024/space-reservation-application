@@ -4,19 +4,18 @@ import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ReservationService extends StatefulService<Reservation> {
-    private static final List<Reservation> reservations = new ArrayList<>();
+    private static final ArrayList<Reservation> reservations = new ArrayList<>(100);
     private static final String STATE_FILE_PATH = ".reservations";
     private static final WorkspaceService workspaceService = new WorkspaceService();
     private static int lastId = 0;
 
     public Reservation getReservationById(int id) {
-        return reservations.stream().filter(reservation -> reservation.getId() == id).findFirst().orElse(null);
+        return reservations.get(id - 1);
     }
 
-    public List<Reservation> getAllReservations() {
+    public ArrayList<Reservation> getAllReservations() {
         return reservations;
     }
 
@@ -41,7 +40,7 @@ public class ReservationService extends StatefulService<Reservation> {
 
     public void cancelReservation(int id) {
         Reservation reservation = getReservationById(id);
-        reservations.remove(reservation);
+        if (reservation != null) reservations.set(id - 1, null);
 
         System.out.println("Reservation cancelled successfully!");
     }
@@ -57,12 +56,12 @@ public class ReservationService extends StatefulService<Reservation> {
     }
 
     @Override
-    protected List<Reservation> getData() {
+    protected ArrayList<Reservation> getData() {
         return reservations;
     }
 
     @Override
-    protected void setData(List<Reservation> data) {
+    protected void setData(ArrayList<Reservation> data) {
         reservations.addAll(data);
     }
 }
