@@ -85,7 +85,12 @@ public class AdminConsole {
         int id = readInt("Enter workspace ID to edit (0 - Cancel): ");
         if (id == 0) return;
 
-        Workspace workspace = workspaceService.getWorkspaceById(id);
+        Workspace workspace = workspaceService.getWorkspaceById(id).orElse(null);
+
+        if (workspace == null) {
+            System.out.println("Workspace not found!");
+            return;
+        }
 
         String name = workspace.getName();
         name = readLine("Enter new workspace name [" + name + "] (Enter to keep the same): ");

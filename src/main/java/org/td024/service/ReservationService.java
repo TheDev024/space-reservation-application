@@ -4,6 +4,7 @@ import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 public class ReservationService extends StatefulService<Reservation> {
     private static final ArrayList<Reservation> reservations = new ArrayList<>(100);
@@ -11,8 +12,8 @@ public class ReservationService extends StatefulService<Reservation> {
     private static final WorkspaceService workspaceService = new WorkspaceService();
     private static int lastId = 0;
 
-    public Reservation getReservationById(int id) {
-        return reservations.get(id - 1);
+    public Optional<Reservation> getReservationById(int id) {
+        return Optional.ofNullable(reservations.get(id - 1));
     }
 
     public ArrayList<Reservation> getAllReservations() {
@@ -39,8 +40,8 @@ public class ReservationService extends StatefulService<Reservation> {
     }
 
     public void cancelReservation(int id) {
-        Reservation reservation = getReservationById(id);
-        if (reservation != null) reservations.set(id - 1, null);
+        Optional<Reservation> reservation = getReservationById(id);
+        if (reservation.isPresent()) reservations.set(id - 1, null);
 
         System.out.println("Reservation cancelled successfully!");
     }

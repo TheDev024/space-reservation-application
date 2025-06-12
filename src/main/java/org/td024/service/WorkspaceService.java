@@ -7,6 +7,7 @@ import org.td024.entity.Workspace;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiFunction;
 
 public final class WorkspaceService extends StatefulService<Workspace> {
@@ -18,11 +19,11 @@ public final class WorkspaceService extends StatefulService<Workspace> {
 
     private static final BiFunction<Integer, Interval, Boolean> isAvailable = (Integer id, Interval interval) -> {
         List<Reservation> reservations = reservationService.getAllReservations();
-        return reservations.stream().noneMatch(reservation -> reservation.getSpaceId() == id && Interval.isOverlap(interval, reservation.getInterval()));
+        return reservations.stream().noneMatch(reservation -> reservation != null && reservation.getSpaceId() == id && Interval.isOverlap(interval, reservation.getInterval()));
     };
 
-    public Workspace getWorkspaceById(int id) {
-        return workspaces.get(id - 1);
+    public Optional<Workspace> getWorkspaceById(int id) {
+        return Optional.ofNullable(workspaces.get(id - 1));
     }
 
     public ArrayList<Workspace> getAllWorkspaces() {
@@ -30,7 +31,7 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     public List<Workspace> getAvailableWorkspaces(Interval interval) {
-        return workspaces.stream().filter(workspace -> isWorkspaceAvailable(workspace.getId(), interval)).toList();
+        return workspaces.stream().filter(workspace -> workspace != null && isWorkspaceAvailable(workspace.getId(), interval)).toList();
     }
 
     public void createWorkspace(Workspace workspace) {
@@ -43,9 +44,9 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     public void editWorkspace(int id, Workspace workspace) {
-        Workspace reference = getWorkspaceById(id);
+        Optional<Workspace> reference = getWorkspaceById(id);
 
-        if (reference == null) {
+        if (reference.isEmpty()) {
             System.out.println("Workspace not found!");
             return;
         }
@@ -68,7 +69,7 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     public boolean workspaceExists(int id) {
-        return workspaces.stream().anyMatch(workspace -> workspace.getId() == id);
+        return workspaces.stream().anyMatch(workspace -> workspace != null && workspace.getId() == id);
     }
 
     public boolean isWorkspaceAvailable(int id, Interval interval) {
@@ -96,6 +97,6 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     private boolean isWorkspaceReserved(int id, List<Reservation> reservations) {
-        return reservations.stream().anyMatch(reservation -> reservation.getSpaceId() == id && reservation.getInterval().getEndTime().after(new Date()));
+        return reservations.stream().anyMatch(reservation -> reservation != null && reservation.getSpaceId() == id && reservation.getInterval().getEndTime().after(new Date()));
     }
 }
