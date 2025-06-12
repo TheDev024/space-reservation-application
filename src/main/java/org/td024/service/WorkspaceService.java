@@ -7,24 +7,31 @@ import org.td024.entity.Workspace;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 public final class WorkspaceService extends StatefulService<Workspace> {
-    private static final List<Workspace> workspaces = new ArrayList<>();
+    private static final ArrayList<Workspace> workspaces = new ArrayList<>(100);
     private static final ReservationService reservationService = new ReservationService();
+
     private static final String STATE_FILE_PATH = ".workspaces";
     private static int lastId = 0;
 
-    public Workspace getWorkspaceById(int id) {
-        return workspaces.stream().filter(workspace -> workspace.getId() == id).findFirst().orElse(null);
+    private static final BiFunction<Integer, Interval, Boolean> isAvailable = (Integer id, Interval interval) -> {
+        List<Reservation> reservations = reservationService.getAllReservations();
+        return reservations.stream().noneMatch(reservation -> reservation != null && reservation.getSpaceId() == id && Interval.isOverlap(interval, reservation.getInterval()));
+    };
+
+    public Optional<Workspace> getWorkspaceById(int id) {
+        return Optional.ofNullable(workspaces.get(id - 1));
     }
 
-    public List<Workspace> getAllWorkspaces() {
+    public ArrayList<Workspace> getAllWorkspaces() {
         return workspaces;
     }
 
     public List<Workspace> getAvailableWorkspaces(Interval interval) {
-        return workspaces.stream().filter(workspace -> isWorkspaceAvailable(workspace.getId(), interval)).collect(Collectors.toList());
+        return workspaces.stream().filter(workspace -> workspace != null && isWorkspaceAvailable(workspace.getId(), interval)).toList();
     }
 
     public void createWorkspace(Workspace workspace) {
@@ -37,39 +44,36 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     public void editWorkspace(int id, Workspace workspace) {
-        Workspace reference = getWorkspaceById(id);
+        Optional<Workspace> reference = getWorkspaceById(id);
 
-        if (workspace == null) {
+        if (reference.isEmpty()) {
             System.out.println("Workspace not found!");
             return;
         }
 
         workspace.setId(id);
-        workspaces.set(workspaces.indexOf(reference), workspace);
+        workspaces.set(id - 1, workspace);
 
         System.out.println("Workspace updated successfully!");
     }
 
     public void deleteWorkspace(int id) {
-        List<Reservation> reservations = reservationService.getAllReservations();
-        if (reservations.stream().anyMatch(reservation -> reservation.getSpaceId() == id && reservation.getInterval().getEndTime().after(new Date()))) {
+        ArrayList<Reservation> reservations = reservationService.getAllReservations();
+        if (isWorkspaceReserved(id, reservations)) {
             System.out.println("This workspace cannet be deleted because there are reservations on it!");
             return;
         }
 
-        workspaces.removeIf(workspace -> workspace.getId() == id);
+        workspaces.set(id - 1, null);
         System.out.println("Workspace deleted successfully!");
     }
 
     public boolean workspaceExists(int id) {
-        return workspaces.stream().anyMatch(workspace -> workspace.getId() == id);
+        return workspaces.stream().anyMatch(workspace -> workspace != null && workspace.getId() == id);
     }
 
     public boolean isWorkspaceAvailable(int id, Interval interval) {
-        List<Reservation> reservations = reservationService.getAllReservations();
-        reservations = reservations.stream().filter(reservation -> reservation.getSpaceId() == id).collect(Collectors.toList());
-
-        return reservations.stream().noneMatch(reservation -> Interval.isOverlap(interval, reservation.getInterval()));
+        return isAvailable.apply(id, interval);
     }
 
     @Override
@@ -83,12 +87,16 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     @Override
-    protected List<Workspace> getData() {
+    protected ArrayList<Workspace> getData() {
         return workspaces;
     }
 
     @Override
-    protected void setData(List<Workspace> data) {
+    protected void setData(ArrayList<Workspace> data) {
         workspaces.addAll(data);
+    }
+
+    private boolean isWorkspaceReserved(int id, List<Reservation> reservations) {
+        return reservations.stream().anyMatch(reservation -> reservation != null && reservation.getSpaceId() == id && reservation.getInterval().getEndTime().after(new Date()));
     }
 }
