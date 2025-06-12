@@ -7,13 +7,19 @@ import org.td024.entity.Workspace;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.function.BiFunction;
 
 public final class WorkspaceService extends StatefulService<Workspace> {
     private static final ArrayList<Workspace> workspaces = new ArrayList<>(100);
     private static final ReservationService reservationService = new ReservationService();
+
     private static final String STATE_FILE_PATH = ".workspaces";
     private static int lastId = 0;
+
+    private static final BiFunction<Integer, Interval, Boolean> isAvailable = (Integer id, Interval interval) -> {
+        List<Reservation> reservations = reservationService.getAllReservations();
+        return reservations.stream().noneMatch(reservation -> reservation.getSpaceId() == id && Interval.isOverlap(interval, reservation.getInterval()));
+    };
 
     public Workspace getWorkspaceById(int id) {
         return workspaces.get(id - 1);
@@ -24,7 +30,7 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     public List<Workspace> getAvailableWorkspaces(Interval interval) {
-        return workspaces.stream().filter(workspace -> isWorkspaceAvailable(workspace.getId(), interval)).collect(Collectors.toList());
+        return workspaces.stream().filter(workspace -> isWorkspaceAvailable(workspace.getId(), interval)).toList();
     }
 
     public void createWorkspace(Workspace workspace) {
@@ -66,10 +72,7 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     public boolean isWorkspaceAvailable(int id, Interval interval) {
-        List<Reservation> reservations = reservationService.getAllReservations();
-        reservations = reservations.stream().filter(reservation -> reservation.getSpaceId() == id).collect(Collectors.toList());
-
-        return reservations.stream().noneMatch(reservation -> Interval.isOverlap(interval, reservation.getInterval()));
+        return isAvailable.apply(id, interval);
     }
 
     @Override
