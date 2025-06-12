@@ -4,6 +4,7 @@ import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 import org.td024.entity.Workspace;
 import org.td024.exception.DatetimeParseException;
+import org.td024.exception.InvalidInputException;
 import org.td024.exception.InvalidTimeIntervalException;
 import org.td024.service.ReservationService;
 import org.td024.service.WorkspaceService;
@@ -79,7 +80,13 @@ public class UserConsole {
         }
 
         workspaceConsole.printWorkspaces(availableWorkspaces);
-        int spaceId = readInt("Enter workspace ID to reserve (0 - Cancel): ");
+        int spaceId;
+        try {
+            spaceId = readInt("Enter workspace ID to reserve (0 - Cancel): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
         if (spaceId == 0) return;
         String name = readLine("Enter reservation name: ");
 
@@ -106,7 +113,13 @@ public class UserConsole {
         }
         reservationConsole.printReservations(reservations);
 
-        int id = readInt("Enter reservation ID to cancel (0 - Cancel): ");
+        int id;
+        try {
+            id = readInt("Enter reservation ID to cancel (0 - Cancel): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
         if (id == 0) return;
 
         reservationService.cancelReservation(id);
