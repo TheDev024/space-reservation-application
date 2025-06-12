@@ -34,7 +34,7 @@ public abstract class StatefulService<T extends Entity> {
         try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(Paths.get(getFilePath())))) {
             ArrayList<T> loadedData = (ArrayList<T>) ois.readObject();
             setData(loadedData);
-            int lastId = loadedData.stream().mapToInt(T::getId).max().orElse(0);
+            int lastId = loadedData.size();
             setLastId(lastId);
         } catch (ClassNotFoundException | ClassCastException e) {
             throw new ClassChangedException("Class has been modified after the last run!");
