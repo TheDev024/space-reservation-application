@@ -2,6 +2,7 @@ package org.td024.console;
 
 import org.td024.entity.Workspace;
 import org.td024.enums.WorkspaceType;
+import org.td024.exception.InvalidInputException;
 import org.td024.service.WorkspaceService;
 
 import java.math.BigDecimal;
@@ -61,12 +62,25 @@ public class AdminConsole {
         System.out.println("\n== Create a new workspace ==\n");
 
         String name = readLine("Enter workspace name: ");
-        int typeNo = readInt("Enter workspace type (1 - OPEN; 2 - PRIVATE; 3 - ROOM): ");
+
+        int typeNo;
+        try {
+            typeNo = readInt("Enter workspace type (1 - OPEN; 2 - PRIVATE; 3 - ROOM): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
 
         WorkspaceType type = getType(typeNo);
         if (type == null) return;
 
-        BigDecimal price = readBigDecimal("Enter workspace price: ");
+        BigDecimal price;
+        try {
+            price = readBigDecimal("Enter workspace price: ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
 
         Workspace workspace = new Workspace(name, type, price);
         workspaceService.createWorkspace(workspace);
@@ -82,10 +96,23 @@ public class AdminConsole {
         }
         workspaceConsole.printWorkspaces(workspaces);
 
-        int id = readInt("Enter workspace ID to edit (0 - Cancel): ");
+        int id;
+
+        try {
+            id = readInt("Enter workspace ID to edit (0 - Cancel): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
         if (id == 0) return;
 
-        Workspace workspace = workspaceService.getWorkspaceById(id);
+        Workspace workspace = workspaceService.getWorkspaceById(id).orElse(null);
+
+        if (workspace == null) {
+            System.out.println("Workspace not found!");
+            return;
+        }
 
         String name = workspace.getName();
         name = readLine("Enter new workspace name [" + name + "] (Enter to keep the same): ");
@@ -121,7 +148,15 @@ public class AdminConsole {
         }
         workspaceConsole.printWorkspaces(workspaces);
 
-        int id = readInt("Enter workspace ID to delete (0 - Cancel): ");
+        int id;
+
+        try {
+            id = readInt("Enter workspace ID to delete (0 - Cancel): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
         if (id == 0) return;
 
         workspaceService.deleteWorkspace(id);
