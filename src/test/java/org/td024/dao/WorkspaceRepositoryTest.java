@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 class WorkspaceRepositoryTest {
     private WorkspaceRepository repository;
@@ -114,5 +115,48 @@ class WorkspaceRepositoryTest {
         assertEquals(-1, editedId);
     }
 
+    @Test
+    void shouldReturnTrueOnSuccessfulDelete() {
+        // Arrange
+        Workspace workspace = new Workspace("Test Workspace", WorkspaceType.OPEN, BigDecimal.ONE);
+        int id = repository.save(workspace);
 
+        // Act
+        boolean deleted = repository.deleteWorkspace(id);
+
+        // Assert
+        assert deleted;
+    }
+
+    @Test
+    void shouldReturnEmptyOptionalForDeletedId() {
+        // Arrange
+        Workspace workspace = new Workspace("Test Workspace", WorkspaceType.OPEN, BigDecimal.ONE);
+        int id = repository.save(workspace);
+
+        // Act
+        repository.deleteWorkspace(id);
+
+        // Assert
+        assertFalse(repository.getWorkspaceById(id).isPresent());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, 0, 1, 10, Integer.MAX_VALUE, Integer.MIN_VALUE})
+    void shouldReturnFalseForUnsuccessfulDelete(int id) {
+        assertFalse(repository.deleteWorkspace(id));
+    }
+
+    @Test
+    void shouldReturnFalseForAlreadyDeletedId() {
+        // Arrange
+        Workspace workspace = new Workspace("Test Workspace", WorkspaceType.OPEN, BigDecimal.ONE);
+        int id = repository.save(workspace);
+
+        // Act
+        repository.deleteWorkspace(id);
+
+        // Assert
+        assertFalse(repository.deleteWorkspace(id));
+    }
 }

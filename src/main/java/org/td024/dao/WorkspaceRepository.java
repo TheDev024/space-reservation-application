@@ -43,6 +43,7 @@ public class WorkspaceRepository extends Repository<Workspace> {
      * @return if delete is successful, true, otherwise, false
      */
     public boolean deleteWorkspace(int id) {
+        if (id <= 0 || id > workspaces.size()) return false;
         return workspaces.set(id - 1, null) != null;
     }
 
