@@ -24,7 +24,7 @@ class WorkspaceRepositoryTest {
     }
 
     @Test
-    void saveShouldReturnId() {
+    void shouldReturnIdAfterSuccessfulSave() {
         // Arrange
         Workspace workspace1 = new Workspace("Test Workspace 1", WorkspaceType.OPEN, BigDecimal.ONE);
         Workspace workspace2 = new Workspace("Test Workspace 2", WorkspaceType.OPEN, BigDecimal.ONE);
@@ -42,7 +42,7 @@ class WorkspaceRepositoryTest {
     }
 
     @Test
-    void saveShouldAssignWorkspaceId() {
+    void shouldAssignIdAfterSuccessfulSave() {
         // Arrange
         Workspace workspace1 = new Workspace("Test Workspace 1", WorkspaceType.OPEN, BigDecimal.ONE);
         Workspace workspace2 = new Workspace("Test Workspace 2", WorkspaceType.OPEN, BigDecimal.ONE);
@@ -60,7 +60,7 @@ class WorkspaceRepositoryTest {
     }
 
     @Test
-    void saveShouldEditWorkspaceById() {
+    void shouldEditWorkspaceWithGivenId() {
         // Arrange
         Workspace workspace = new Workspace("Test Workspace", WorkspaceType.OPEN, BigDecimal.ONE);
         int id = repository.save(workspace);
@@ -70,12 +70,12 @@ class WorkspaceRepositoryTest {
         repository.save(workspace);
 
         // Assert
-        repository.getWorkspaceById(id).ifPresentOrElse(edited -> assertEquals("Edited Workspace", edited.getName()), () -> {
+        repository.getById(id).ifPresentOrElse(edited -> assertEquals("Edited Workspace", edited.getName()), () -> {
         });
     }
 
     @Test
-    void saveShouldReturnSameIdForEdit() {
+    void shouldReturnTheSameIdForEdit() {
         // Arrange
         Workspace workspace = new Workspace("Test Workspace", WorkspaceType.OPEN, BigDecimal.ONE);
         int id = repository.save(workspace);
@@ -102,11 +102,11 @@ class WorkspaceRepositoryTest {
     }
 
     @Test
-    void deletedWorkspaceEditShouldBeUnsuccessful() {
+    void shouldBeUnsuccessfulToEditDeletedWorkspace() {
         // Arrange
         Workspace workspace = new Workspace("Test Workspace", WorkspaceType.OPEN, BigDecimal.ONE);
         int id = repository.save(workspace);
-        repository.deleteWorkspace(id);
+        repository.delete(id);
         workspace = new Workspace(id, "Edited Workspace", WorkspaceType.OPEN, BigDecimal.ONE);
 
         // Act
@@ -123,7 +123,7 @@ class WorkspaceRepositoryTest {
         int id = repository.save(workspace);
 
         // Act
-        boolean deleted = repository.deleteWorkspace(id);
+        boolean deleted = repository.delete(id);
 
         // Assert
         assert deleted;
@@ -136,16 +136,16 @@ class WorkspaceRepositoryTest {
         int id = repository.save(workspace);
 
         // Act
-        repository.deleteWorkspace(id);
+        repository.delete(id);
 
         // Assert
-        assertFalse(repository.getWorkspaceById(id).isPresent());
+        assertFalse(repository.getById(id).isPresent());
     }
 
     @ParameterizedTest
     @ValueSource(ints = {-1, 0, 1, 10, Integer.MAX_VALUE, Integer.MIN_VALUE})
     void shouldReturnFalseForUnsuccessfulDelete(int id) {
-        assertFalse(repository.deleteWorkspace(id));
+        assertFalse(repository.delete(id));
     }
 
     @Test
@@ -155,10 +155,10 @@ class WorkspaceRepositoryTest {
         int id = repository.save(workspace);
 
         // Act
-        repository.deleteWorkspace(id);
+        repository.delete(id);
 
         // Assert
-        assertFalse(repository.deleteWorkspace(id));
+        assertFalse(repository.delete(id));
     }
 
     @Test
@@ -167,12 +167,12 @@ class WorkspaceRepositoryTest {
         repository.save(new Workspace("Test Workspace 2", WorkspaceType.OPEN, BigDecimal.ONE));
         repository.save(new Workspace("Test Workspace 3", WorkspaceType.OPEN, BigDecimal.ONE));
 
-        assertEquals(3, repository.getAllWorkspaces().size());
+        assertEquals(3, repository.getAll().size());
     }
 
     @Test
     void shouldReturnEmptyListIfNoWorkspaces() {
-        assert repository.getAllWorkspaces().isEmpty();
+        assert repository.getAll().isEmpty();
     }
 
     @Test
@@ -183,7 +183,7 @@ class WorkspaceRepositoryTest {
         repository.save(new Workspace("Test Workspace 3", WorkspaceType.OPEN, BigDecimal.ONE));
 
         // Act
-        List<Workspace> workspaces = repository.getAllWorkspaces();
+        List<Workspace> workspaces = repository.getAll();
 
         // Assert
         assertEquals("Test Workspace 1", workspaces.get(0).getName());
@@ -196,9 +196,9 @@ class WorkspaceRepositoryTest {
         repository.save(new Workspace("Test Workspace 1", WorkspaceType.OPEN, BigDecimal.ONE));
         repository.save(new Workspace("Test Workspace 2", WorkspaceType.OPEN, BigDecimal.ONE));
 
-        repository.deleteWorkspace(1);
+        repository.delete(1);
 
-        List<Workspace> workspaces = repository.getAllWorkspaces();
+        List<Workspace> workspaces = repository.getAll();
 
         assertEquals(1, workspaces.size());
     }
@@ -206,6 +206,6 @@ class WorkspaceRepositoryTest {
     @ParameterizedTest
     @ValueSource(ints = {-1, 0, 1, 10, Integer.MAX_VALUE, Integer.MIN_VALUE})
     void shouldReturnEmptyOptionalForInvalidId(int id) {
-        assertFalse(repository.getWorkspaceById(id).isPresent());
+        assertFalse(repository.getById(id).isPresent());
     }
 }

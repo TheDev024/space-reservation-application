@@ -16,9 +16,7 @@ public class Workspace extends Entity implements Serializable {
 
     public Workspace(String name, WorkspaceType type, BigDecimal price) {
         this.name = name;
-
         this.type = type;
-
         this.price = price;
     }
 

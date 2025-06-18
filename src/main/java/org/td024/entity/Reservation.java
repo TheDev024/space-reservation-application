@@ -13,9 +13,14 @@ public class Reservation extends Entity implements Serializable {
 
     public Reservation(String name, int spaceId, Interval interval) {
         this.name = name;
-
         this.spaceId = spaceId;
+        this.interval = interval;
+    }
 
+    public Reservation(int id, String name, int spaceId, Interval interval) {
+        this.id = id;
+        this.name = name;
+        this.spaceId = spaceId;
         this.interval = interval;
     }
 
