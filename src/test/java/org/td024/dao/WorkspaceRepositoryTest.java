@@ -9,6 +9,7 @@ import org.td024.enums.WorkspaceType;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -158,5 +159,53 @@ class WorkspaceRepositoryTest {
 
         // Assert
         assertFalse(repository.deleteWorkspace(id));
+    }
+
+    @Test
+    void shouldReturnAllWorkspaces() {
+        repository.save(new Workspace("Test Workspace 1", WorkspaceType.OPEN, BigDecimal.ONE));
+        repository.save(new Workspace("Test Workspace 2", WorkspaceType.OPEN, BigDecimal.ONE));
+        repository.save(new Workspace("Test Workspace 3", WorkspaceType.OPEN, BigDecimal.ONE));
+
+        assertEquals(3, repository.getAllWorkspaces().size());
+    }
+
+    @Test
+    void shouldReturnEmptyListIfNoWorkspaces() {
+        assert repository.getAllWorkspaces().isEmpty();
+    }
+
+    @Test
+    void shouldReturnEntitiesInRightOrder() {
+        // Arrange
+        repository.save(new Workspace("Test Workspace 1", WorkspaceType.OPEN, BigDecimal.ONE));
+        repository.save(new Workspace("Test Workspace 2", WorkspaceType.OPEN, BigDecimal.ONE));
+        repository.save(new Workspace("Test Workspace 3", WorkspaceType.OPEN, BigDecimal.ONE));
+
+        // Act
+        List<Workspace> workspaces = repository.getAllWorkspaces();
+
+        // Assert
+        assertEquals("Test Workspace 1", workspaces.get(0).getName());
+        assertEquals("Test Workspace 2", workspaces.get(1).getName());
+        assertEquals("Test Workspace 3", workspaces.get(2).getName());
+    }
+
+    @Test
+    void shouldExcludeDeletedWorkspaces() {
+        repository.save(new Workspace("Test Workspace 1", WorkspaceType.OPEN, BigDecimal.ONE));
+        repository.save(new Workspace("Test Workspace 2", WorkspaceType.OPEN, BigDecimal.ONE));
+
+        repository.deleteWorkspace(1);
+
+        List<Workspace> workspaces = repository.getAllWorkspaces();
+
+        assertEquals(1, workspaces.size());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, 0, 1, 10, Integer.MAX_VALUE, Integer.MIN_VALUE})
+    void shouldReturnEmptyOptionalForInvalidId(int id) {
+        assertFalse(repository.getWorkspaceById(id).isPresent());
     }
 }
