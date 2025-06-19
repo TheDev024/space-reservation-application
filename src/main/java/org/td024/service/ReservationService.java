@@ -34,7 +34,7 @@ public final class ReservationService extends StatefulService<Reservation> {
             return;
         }
 
-        if (!workspaceService.isWorkspaceAvailable(spaceId, interval)) {
+        if (!workspaceService.isAvailable(spaceId, interval)) {
             System.out.println("Workspace is not available!");
             return;
         }
@@ -46,7 +46,7 @@ public final class ReservationService extends StatefulService<Reservation> {
     }
 
     public void cancelReservation(int id) {
-        boolean deleted = repository.delete(id - 1);
+        boolean deleted = repository.delete(id);
         if (deleted) System.out.println("Reservation cancelled successfully!");
         else System.out.println("Reservation not found!");
     }

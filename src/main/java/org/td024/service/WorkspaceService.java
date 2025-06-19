@@ -5,6 +5,7 @@ import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 import org.td024.entity.Workspace;
 import org.td024.exception.NotFoundException;
+import org.td024.exception.WorkspaceSaveFailed;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,10 @@ public final class WorkspaceService extends StatefulService<Workspace> {
         super(repository, STATE_FILE_PATH);
     }
 
+    public WorkspaceService(WorkspaceRepository repository) {
+        super(repository, STATE_FILE_PATH);
+    }
+
     public Workspace getWorkspaceById(int id) throws NotFoundException {
         Optional<Workspace> workspace = repository.getById(id);
         if (workspace.isEmpty()) throw new NotFoundException("Workspace not found!");
@@ -37,39 +42,33 @@ public final class WorkspaceService extends StatefulService<Workspace> {
 
     public List<Workspace> getAvailableWorkspaces(Interval interval) {
         List<Workspace> workspaces = repository.getAll();
-        return workspaces.stream().filter(workspace -> isWorkspaceAvailable(workspace.getId(), interval)).toList();
+        return workspaces.stream().filter(workspace -> isAvailable(workspace.getId(), interval)).toList();
     }
 
-    public void createWorkspace(Workspace workspace) {
-        int id = repository.save(workspace);
-        if (id != -1) System.out.println("Workspace created successfully!\nWorkspace ID: " + id);
+    public int createWorkspace(Workspace workspace) {
+        return repository.save(workspace);
     }
 
-    public void editWorkspace(int id, Workspace workspace) {
-        Optional<Workspace> reference = repository.getById(id);
-
-        if (reference.isEmpty()) {
+    public int editWorkspace(int id, Workspace workspace) throws WorkspaceSaveFailed {
+        if (!workspaceExists(id)) {
             System.out.println("Workspace not found!");
-            return;
+            throw new WorkspaceSaveFailed("Couldn't save workspace!");
         }
 
         workspace.setId(id);
-        repository.save(workspace);
-
-        System.out.println("Workspace updated successfully!");
+        id = repository.save(workspace);
+        return id;
     }
 
-    public void deleteWorkspace(int id) {
-        boolean deleted = repository.delete(id - 1);
-        if (deleted) System.out.println("Workspace deleted successfully!");
-        else System.out.println("Workspace not found; ID: " + id);
+    public boolean deleteWorkspace(int id) {
+        return repository.delete(id);
     }
 
     public boolean workspaceExists(int id) {
         return repository.getById(id).isPresent();
     }
 
-    public boolean isWorkspaceAvailable(int id, Interval interval) {
+    public boolean isAvailable(int id, Interval interval) {
         return isAvailable.apply(id, interval);
     }
 }

@@ -5,6 +5,7 @@ import org.td024.enums.WorkspaceType;
 import org.td024.exception.InvalidInputException;
 import org.td024.exception.NotFoundException;
 import org.td024.exception.WorkspaceIsReservedException;
+import org.td024.exception.WorkspaceSaveFailed;
 import org.td024.service.WorkspaceService;
 
 import java.math.BigDecimal;
@@ -85,7 +86,9 @@ public class AdminConsole {
         }
 
         Workspace workspace = new Workspace(name, type, price);
-        workspaceService.createWorkspace(workspace);
+
+        int id = workspaceService.createWorkspace(workspace);
+        System.out.println("Workspace created successfully!\nWorkspace ID: " + id);
     }
 
     private void editWorkspace() {
@@ -138,7 +141,12 @@ public class AdminConsole {
         String newPrice = readLine("Enter new workspace price [" + price + "] (Enter to keep the same): ");
         if (!newPrice.isEmpty()) workspace.setPrice(new BigDecimal(newPrice));
 
-        workspaceService.editWorkspace(id, workspace);
+        try {
+            workspaceService.editWorkspace(id, workspace);
+            System.out.println("Workspace updated successfully!");
+        } catch (WorkspaceSaveFailed e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void deleteWorkspace() {
@@ -163,7 +171,9 @@ public class AdminConsole {
         if (id == 0) return;
 
         try {
-            workspaceService.deleteWorkspace(id);
+            boolean deleted = workspaceService.deleteWorkspace(id);
+            if (deleted) System.out.println("Workspace deleted successfully!");
+            else System.out.println("Workspace not found; ID: " + id);
         } catch (WorkspaceIsReservedException e) {
             System.out.println(e.getMessage());
         }
