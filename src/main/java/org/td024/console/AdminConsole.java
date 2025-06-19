@@ -3,6 +3,8 @@ package org.td024.console;
 import org.td024.entity.Workspace;
 import org.td024.enums.WorkspaceType;
 import org.td024.exception.InvalidInputException;
+import org.td024.exception.NotFoundException;
+import org.td024.exception.WorkspaceIsReservedException;
 import org.td024.service.WorkspaceService;
 
 import java.math.BigDecimal;
@@ -107,10 +109,11 @@ public class AdminConsole {
 
         if (id == 0) return;
 
-        Workspace workspace = workspaceService.getWorkspaceById(id).orElse(null);
-
-        if (workspace == null) {
-            System.out.println("Workspace not found!");
+        Workspace workspace;
+        try {
+            workspace = workspaceService.getWorkspaceById(id);
+        } catch (NotFoundException e) {
+            System.out.println(e.getMessage());
             return;
         }
 
@@ -159,7 +162,11 @@ public class AdminConsole {
 
         if (id == 0) return;
 
-        workspaceService.deleteWorkspace(id);
+        try {
+            workspaceService.deleteWorkspace(id);
+        } catch (WorkspaceIsReservedException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private WorkspaceType getType(int typeNo) {

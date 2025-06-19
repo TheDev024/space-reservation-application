@@ -2,6 +2,7 @@ package org.td024.console;
 
 import org.td024.entity.Reservation;
 import org.td024.entity.Workspace;
+import org.td024.exception.NotFoundException;
 import org.td024.service.ReservationService;
 import org.td024.service.WorkspaceService;
 
@@ -26,8 +27,13 @@ public class ReservationConsole {
         else {
             System.out.printf("%3s: %-30s %-30s %-20s %-20s\n", "ID", "Name", "Space Name", "Start Time", "End Time");
             for (Reservation reservation : reservations) {
-                Workspace workspace = workspaceService.getWorkspaceById(reservation.getSpaceId()).orElse(null);
-                if (workspace == null) continue;
+                Workspace workspace;
+                try {
+                    workspace = workspaceService.getWorkspaceById(reservation.getSpaceId());
+                } catch (NotFoundException e) {
+                    System.out.println(e.getMessage());
+                    return;
+                }
 
                 String workspaceName = workspace.getName();
 

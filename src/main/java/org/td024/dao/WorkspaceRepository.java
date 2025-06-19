@@ -2,6 +2,7 @@ package org.td024.dao;
 
 import org.td024.entity.Reservation;
 import org.td024.entity.Workspace;
+import org.td024.exception.WorkspaceIsReservedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,8 @@ public final class WorkspaceRepository extends Repository<Workspace> {
     @Override
     public boolean delete(int id) {
         List<Reservation> reservations = reservationRepository.getAllByWorkspace(id);
-        if (!reservations.isEmpty()) return false;
+        if (!reservations.isEmpty())
+            throw new WorkspaceIsReservedException("Workspace Has Dependent Reservations; ID: " + id);
         return super.delete(id);
     }
 }

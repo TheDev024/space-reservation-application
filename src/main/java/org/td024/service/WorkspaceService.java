@@ -4,8 +4,8 @@ import org.td024.dao.WorkspaceRepository;
 import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 import org.td024.entity.Workspace;
+import org.td024.exception.NotFoundException;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -25,8 +25,10 @@ public final class WorkspaceService extends StatefulService<Workspace> {
         super(repository, STATE_FILE_PATH);
     }
 
-    public Optional<Workspace> getWorkspaceById(int id) {
-        return repository.getById(id);
+    public Workspace getWorkspaceById(int id) throws NotFoundException {
+        Optional<Workspace> workspace = repository.getById(id);
+        if (workspace.isEmpty()) throw new NotFoundException("Workspace not found!");
+        return workspace.get();
     }
 
     public List<Workspace> getAllWorkspaces() {
@@ -58,15 +60,9 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     }
 
     public void deleteWorkspace(int id) {
-        List<Reservation> reservations = reservationService.getAllReservations();
-        if (isWorkspaceReserved(id, reservations)) {
-            System.out.println("This workspace cannet be deleted because there are reservations on it!");
-            return;
-        }
-
-        // TODO: refactor (repository)
-        repository.delete(id - 1);
-        System.out.println("Workspace deleted successfully!");
+        boolean deleted = repository.delete(id - 1);
+        if (deleted) System.out.println("Workspace deleted successfully!");
+        else System.out.println("Workspace not found; ID: " + id);
     }
 
     public boolean workspaceExists(int id) {
@@ -75,9 +71,5 @@ public final class WorkspaceService extends StatefulService<Workspace> {
 
     public boolean isWorkspaceAvailable(int id, Interval interval) {
         return isAvailable.apply(id, interval);
-    }
-
-    private boolean isWorkspaceReserved(int id, List<Reservation> reservations) {
-        return reservations.stream().anyMatch(reservation -> reservation != null && reservation.getSpaceId() == id && reservation.getInterval().getEndTime().after(new Date()));
     }
 }
