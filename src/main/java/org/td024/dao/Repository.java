@@ -1,7 +1,8 @@
 package org.td024.dao;
 
 import org.td024.entity.Entity;
-import org.td024.exception.SaveStateFailedException;
+import org.td024.exception.ClassChangedException;
+import org.td024.exception.StateFileNotFoundException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -10,7 +11,11 @@ import java.util.Objects;
 import java.util.Optional;
 
 public abstract class Repository<T extends Entity> {
-    protected ArrayList<T> data = new ArrayList<>();
+    protected ArrayList<T> data;
+
+    Repository(ArrayList<T> entities) {
+        data = entities;
+    }
 
     public Optional<T> getById(int id) {
         if (id <= 0 || id > data.size()) return Optional.empty();
@@ -21,6 +26,11 @@ public abstract class Repository<T extends Entity> {
         return data.stream().filter(Objects::nonNull).toList();
     }
 
+    /**
+     * If id is 0, create a new entity, otherwise update an existing entity
+     *
+     * @return id of the created/updated entity, if not successful, -1
+     */
     public int save(T entity) {
         int id = entity.getId();
         if (id == 0) {
@@ -35,36 +45,35 @@ public abstract class Repository<T extends Entity> {
         return id;
     }
 
+    /**
+     * @return if delete is successful, true, otherwise, false
+     */
     public boolean delete(int id) {
         if (id <= 0 || id > data.size()) return false;
         return data.set(id - 1, null) != null;
     }
 
-    protected ArrayList<T> getData() {
-        return data;
+    public void saveState(String path) throws StateFileNotFoundException {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path))) {
+            oos.writeObject(data);
+        } catch (IOException e) {
+            throw new StateFileNotFoundException(e.getMessage());
+        }
+    }
+
+    public void loadState(String path) throws ClassChangedException, StateFileNotFoundException {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path))) {
+            ArrayList<T> data = (ArrayList<T>) ois.readObject();
+            setData(data);
+        } catch (ClassNotFoundException | ClassCastException e) {
+            throw new ClassChangedException("Class has been modified after the last run!");
+        } catch (IOException e) {
+            throw new StateFileNotFoundException("File not found to load state: " + path);
+        }
     }
 
     protected void setData(ArrayList<T> data) {
         this.data.clear();
         this.data.addAll(data);
-    }
-
-    byte[] saveState() throws SaveStateFailedException {
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); ObjectOutputStream oos = new ObjectOutputStream(out)) {
-            ArrayList<T> data = getData();
-            oos.writeObject(data);
-            return out.toByteArray();
-        } catch (IOException e) {
-            throw new SaveStateFailedException(e.getMessage());
-        }
-    }
-
-    void loadState(byte[] state) {
-        try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(state))) {
-            ArrayList<T> data = (ArrayList<T>) ois.readObject();
-            setData(data);
-        } catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

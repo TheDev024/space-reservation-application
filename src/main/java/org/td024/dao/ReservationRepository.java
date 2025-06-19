@@ -5,11 +5,11 @@ import org.td024.entity.Reservation;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReservationRepository extends Repository<Reservation> {
-    private static final ArrayList<Reservation> reservations = new ArrayList<>();
+public final class ReservationRepository extends Repository<Reservation> {
+    private static final ArrayList<Reservation> data = new ArrayList<>();
 
-    ReservationRepository() {
-        data = reservations;
+    public ReservationRepository() {
+        super(data);
     }
 
     public List<Reservation> getAllByWorkspace(int workspaceId) {
