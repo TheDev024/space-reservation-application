@@ -16,11 +16,19 @@ import static org.td024.console.util.ConsoleReader.readInt;
 import static org.td024.console.util.ConsoleReader.readLine;
 
 public class UserConsole {
-    private static final WorkspaceConsole workspaceConsole = new WorkspaceConsole();
-    private static final ReservationConsole reservationConsole = new ReservationConsole();
-    private static final IntervalConsole intervalConsole = new IntervalConsole();
-    private static final ReservationService reservationService = new ReservationService();
-    private static final WorkspaceService workspaceService = new WorkspaceService();
+    private final WorkspaceConsole workspaceConsole;
+    private final ReservationConsole reservationConsole;
+    private final IntervalConsole intervalConsole;
+    private final WorkspaceService workspaceService;
+    private final ReservationService reservationService;
+
+    public UserConsole(WorkspaceConsole workspaceConsole, ReservationConsole reservationConsole, IntervalConsole intervalConsole, WorkspaceService workspaceService, ReservationService reservationService) {
+        this.workspaceConsole = workspaceConsole;
+        this.reservationConsole = reservationConsole;
+        this.intervalConsole = intervalConsole;
+        this.workspaceService = workspaceService;
+        this.reservationService = reservationService;
+    }
 
     public void menu() {
         System.out.println("\n== Welcome to the USER CONSOLE ==");

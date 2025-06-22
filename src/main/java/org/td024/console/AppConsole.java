@@ -1,5 +1,7 @@
 package org.td024.console;
 
+import org.td024.dao.ReservationRepository;
+import org.td024.dao.WorkspaceRepository;
 import org.td024.exception.ClassChangedException;
 import org.td024.exception.StateFileNotFoundException;
 import org.td024.service.ReservationService;
@@ -9,11 +11,17 @@ import java.util.Scanner;
 
 public class AppConsole {
     private static final Scanner scanner = new Scanner(System.in);
-    private static final AdminConsole adminConsole = new AdminConsole();
-    private static final UserConsole userConsole = new UserConsole();
 
-    private static final WorkspaceService workspaceService = new WorkspaceService();
-    private static final ReservationService reservationService = new ReservationService();
+    private final WorkspaceRepository workspaceRepository = new WorkspaceRepository();
+    private final ReservationRepository reservationRepository = new ReservationRepository();
+
+    private final WorkspaceService workspaceService = new WorkspaceService(workspaceRepository, reservationRepository);
+    private final ReservationService reservationService = new ReservationService(reservationRepository, workspaceService);
+    private final ReservationConsole reservationConsole = new ReservationConsole(workspaceService, reservationService);
+    private final WorkspaceConsole workspaceConsole = new WorkspaceConsole(workspaceService, intervalConsole);
+    private final UserConsole userConsole = new UserConsole(workspaceConsole, reservationConsole, intervalConsole, workspaceService, reservationService);
+    private final AdminConsole adminConsole = new AdminConsole(workspaceService, workspaceConsole, reservationConsole);
+    private final IntervalConsole intervalConsole = new IntervalConsole();
 
     public void mainMenu() {
         loadState();

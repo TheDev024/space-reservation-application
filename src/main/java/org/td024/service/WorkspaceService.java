@@ -1,5 +1,6 @@
 package org.td024.service;
 
+import org.td024.dao.ReservationRepository;
 import org.td024.dao.WorkspaceRepository;
 import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
@@ -13,21 +14,19 @@ import java.util.function.BiFunction;
 
 public final class WorkspaceService extends StatefulService<Workspace> {
     private static final String STATE_FILE_PATH = ".workspaces";
-    private static final WorkspaceRepository repository = new WorkspaceRepository();
 
-    private static final ReservationService reservationService = new ReservationService();
+    private final WorkspaceRepository repository;
+    private ReservationRepository reservationRepository;
 
-    private static final BiFunction<Integer, Interval, Boolean> isAvailable = (Integer id, Interval interval) -> {
-        List<Reservation> reservations = reservationService.getAllReservations();
+    private final BiFunction<Integer, Interval, Boolean> isAvailable = (Integer id, Interval interval) -> {
+        List<Reservation> reservations = reservationRepository.getAll();
         return reservations.stream().noneMatch(reservation -> reservation != null && reservation.getSpaceId() == id && Interval.isOverlap(interval, reservation.getInterval()));
     };
 
-    public WorkspaceService() {
-        super(repository, STATE_FILE_PATH);
-    }
-
-    public WorkspaceService(WorkspaceRepository repository) {
-        super(repository, STATE_FILE_PATH);
+    public WorkspaceService(WorkspaceRepository repository, ReservationRepository reservationRepository) {
+        super(STATE_FILE_PATH, repository);
+        this.repository = repository;
+        this.reservationRepository = reservationRepository;
     }
 
     public Workspace getWorkspaceById(int id) throws NotFoundException {

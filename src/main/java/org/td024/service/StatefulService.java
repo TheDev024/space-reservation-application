@@ -9,9 +9,9 @@ public abstract class StatefulService<T extends Entity> {
     protected String SATE_FILE_PATH;
     protected Repository<T> repository;
 
-    public StatefulService(Repository<T> repo, String stateFilePath) {
-        repository = repo;
+    public StatefulService(String stateFilePath, Repository<T> repository) {
         SATE_FILE_PATH = stateFilePath;
+        this.repository = repository;
     }
 
     public void saveState() throws StateFileNotFoundException {

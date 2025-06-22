@@ -14,9 +14,16 @@ import java.util.List;
 import static org.td024.console.util.ConsoleReader.*;
 
 public class AdminConsole {
-    private static final WorkspaceService workspaceService = new WorkspaceService();
-    private static final WorkspaceConsole workspaceConsole = new WorkspaceConsole();
-    private static final ReservationConsole reservationConsole = new ReservationConsole();
+
+    private final WorkspaceService workspaceService;
+    private final WorkspaceConsole workspaceConsole;
+    private final ReservationConsole reservationConsole;
+
+    public AdminConsole(WorkspaceService workspaceService, WorkspaceConsole workspaceConsole, ReservationConsole reservationConsole) {
+        this.workspaceService = workspaceService;
+        this.workspaceConsole = workspaceConsole;
+        this.reservationConsole = reservationConsole;
+    }
 
 
     public void menu() {

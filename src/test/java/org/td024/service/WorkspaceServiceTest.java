@@ -9,6 +9,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.td024.dao.ReservationRepository;
 import org.td024.dao.WorkspaceRepository;
 import org.td024.entity.Workspace;
 import org.td024.enums.WorkspaceType;
@@ -27,11 +28,14 @@ class WorkspaceServiceTest {
     @Spy
     private WorkspaceRepository repository;
 
+    @Spy
+    private ReservationRepository reservationRepository;
+
     private WorkspaceService service;
 
     @BeforeEach
     void setUp() {
-        service = new WorkspaceService(repository);
+        service = new WorkspaceService(repository, reservationRepository);
     }
 
     @Test
