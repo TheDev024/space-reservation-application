@@ -2,10 +2,9 @@ package org.td024.entity;
 
 import org.td024.enums.WorkspaceType;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 
-public class Workspace extends Entity implements Serializable {
+public class Workspace extends Entity {
     private int id;
 
     private String name;

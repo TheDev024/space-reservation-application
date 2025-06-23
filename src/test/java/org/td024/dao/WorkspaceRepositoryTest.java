@@ -4,11 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Spy;
 import org.td024.entity.Workspace;
 import org.td024.enums.WorkspaceType;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,10 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 class WorkspaceRepositoryTest {
     private WorkspaceRepository repository;
 
+    @Spy
+    private ReservationRepository reservationRepository = new ReservationRepository();
+
     @BeforeEach
     public void setUp() {
-        repository = new WorkspaceRepository();
-        repository.setData(new ArrayList<>());
+        repository = new WorkspaceRepository(reservationRepository);
     }
 
     @Test
