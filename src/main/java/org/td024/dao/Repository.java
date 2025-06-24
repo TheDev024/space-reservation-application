@@ -12,6 +12,17 @@ public abstract class Repository<T extends Entity> {
     protected final Connection connection;
     private final String table;
 
+    protected int getLastId() {
+        String query = "SELECT MAX(id) FROM " + table;
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+            if (resultSet.next()) return resultSet.getInt(1);
+            else return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Repository(String table) {
         this.table = table;
 
@@ -27,10 +38,9 @@ public abstract class Repository<T extends Entity> {
     }
 
     public Optional<T> getById(int id) {
-        String query = "SELECT * FROM ? WHERE id = ?";
+        String query = "SELECT * FROM " + table + " WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, table);
-            statement.setInt(2, id);
+            statement.setInt(1, id);
 
             ResultSet resultSet = statement.executeQuery();
 
@@ -42,10 +52,9 @@ public abstract class Repository<T extends Entity> {
     }
 
     public List<T> getAll() {
-        String query = "SELECT * FROM ?";
-        try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, table);
-            ResultSet resultSet = statement.executeQuery();
+        String query = "SELECT * FROM " + table + " ORDER BY id";
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
 
             List<T> entities = new ArrayList<>();
             while (resultSet.next()) {
@@ -69,10 +78,9 @@ public abstract class Repository<T extends Entity> {
      * @return if delete is successful, true, otherwise, false
      */
     public boolean delete(int id) {
-        String query = "DELETE FROM ? WHERE id = ?";
+        String query = "DELETE FROM " + table + " WHERE id = ?";
         try (PreparedStatement statement = connection.prepareStatement(query)) {
-            statement.setString(1, table);
-            statement.setInt(2, id);
+            statement.setInt(1, id);
 
             int affectedRows = statement.executeUpdate();
             return affectedRows == 1;

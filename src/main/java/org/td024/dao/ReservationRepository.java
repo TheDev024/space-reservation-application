@@ -4,10 +4,7 @@ import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 import org.td024.exception.InvalidTimeIntervalException;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,20 +31,20 @@ public final class ReservationRepository extends Repository<Reservation> {
         int id = entity.getId();
 
         if (id == 0) {
-            String query = "INSERT INTO reservation (name, workspace_id, start_date, end_date) VALUES (?, ?, ?, ?)";
+            String query = "INSERT INTO reservation (name, workspace_id, start_time, end_time) VALUES (?, ?, ?, ?)";
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setString(1, entity.getName());
                 statement.setInt(2, entity.getSpaceId());
-                statement.setDate(3, new Date(entity.getInterval().getStartTime().getTime()));
-                statement.setDate(4, new Date(entity.getInterval().getEndTime().getTime()));
+                statement.setTimestamp(3, new Timestamp(entity.getInterval().getStartTime().getTime()));
+                statement.setTimestamp(4, new Timestamp(entity.getInterval().getEndTime().getTime()));
 
                 int affectedRows = statement.executeUpdate();
-                return affectedRows == 0 ? -1 : entity.getId();
+                return affectedRows == 0 ? -1 : getLastId();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         } else {
-            String query = "UPDATE reservation SET name = ?, workspace_id = ?, start_date = ?, end_date = ? WHERE id = ?";
+            String query = "UPDATE reservation SET name = ?, workspace_id = ?, start_time = ?, end_time = ? WHERE id = ?";
             try (PreparedStatement statement = connection.prepareStatement(query)) {
                 statement.setString(1, entity.getName());
                 statement.setInt(2, entity.getSpaceId());
@@ -68,8 +65,8 @@ public final class ReservationRepository extends Repository<Reservation> {
         String name = resultSet.getString("name");
         int workspaceId = resultSet.getInt("workspace_id");
 
-        Date startTime = resultSet.getDate("start_time");
-        Date endTime = resultSet.getDate("end_time");
+        Date startTime = new Date(resultSet.getTimestamp("start_time").getTime());
+        Date endTime = new Date(resultSet.getTimestamp("end_time").getTime());
 
         Interval interval;
         try {

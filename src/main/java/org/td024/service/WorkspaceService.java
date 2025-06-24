@@ -19,8 +19,8 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     private ReservationRepository reservationRepository;
 
     private final BiFunction<Integer, Interval, Boolean> isAvailable = (Integer id, Interval interval) -> {
-        List<Reservation> reservations = reservationRepository.getAll();
-        return reservations.stream().noneMatch(reservation -> reservation != null && reservation.getSpaceId() == id && Interval.isOverlap(interval, reservation.getInterval()));
+        List<Reservation> reservations = reservationRepository.getAllByWorkspace(id);
+        return reservations.stream().noneMatch(reservation -> Interval.isOverlap(interval, reservation.getInterval()));
     };
 
     public WorkspaceService(WorkspaceRepository repository, ReservationRepository reservationRepository) {

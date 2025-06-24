@@ -132,7 +132,7 @@ public class AdminConsole {
         if (!name.isEmpty()) workspace.setName(name);
 
         WorkspaceType type = workspace.getType();
-        String typeStr = readLine("Enter new workspace type [" + type + "]\n(1 - OPEN; 2 - PRIVATE; 3 - ROOM)\nEnter to keep the same: ");
+        String typeStr = readLine("Enter new workspace type [" + type + "]\n(1 - OPEN; 2 - PRIVATE; 3 - ROOM; Enter to keep the same): ");
 
         if (!typeStr.isEmpty()) {
             int typeNo = Integer.parseInt(typeStr);

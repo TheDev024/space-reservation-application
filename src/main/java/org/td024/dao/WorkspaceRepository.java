@@ -15,7 +15,7 @@ public final class WorkspaceRepository extends Repository<Workspace> {
     private final ReservationRepository reservationRepository;
 
     public WorkspaceRepository(ReservationRepository reservationRepository) {
-        super("workspaces");
+        super("workspace");
         this.reservationRepository = reservationRepository;
     }
 
@@ -37,7 +37,7 @@ public final class WorkspaceRepository extends Repository<Workspace> {
                 statement.setBigDecimal(3, entity.getPrice());
 
                 int affectedRows = statement.executeUpdate();
-                return affectedRows == 0 ? -1 : entity.getId();
+                return affectedRows == 0 ? -1 : getLastId();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
