@@ -39,7 +39,7 @@ public final class WorkspaceRepository extends Repository<Workspace> {
                 int affectedRows = statement.executeUpdate();
                 return affectedRows == 0 ? -1 : getLastId();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Couldn't write to DB. Cause: " + e.getMessage());
             }
         } else {
             String query = "UPDATE workspace SET name = ?, type = ?, price = ? WHERE id = ?";
@@ -52,7 +52,7 @@ public final class WorkspaceRepository extends Repository<Workspace> {
                 int affectedRows = statement.executeUpdate();
                 return affectedRows == 0 ? -1 : id;
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Couldn't write to DB. Cause: " + e.getMessage());
             }
         }
     }

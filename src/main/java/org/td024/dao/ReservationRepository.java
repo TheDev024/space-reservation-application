@@ -23,7 +23,7 @@ public final class ReservationRepository extends Repository<Reservation> {
             while (resultSet.next()) reservations.add(readDbObject(resultSet));
             return reservations;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Couldn't read from DB. Cause: " + e.getMessage());
         }
     }
 
@@ -41,7 +41,7 @@ public final class ReservationRepository extends Repository<Reservation> {
                 int affectedRows = statement.executeUpdate();
                 return affectedRows == 0 ? -1 : getLastId();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Couldn't write to DB. Cause: " + e.getMessage());
             }
         } else {
             String query = "UPDATE reservation SET name = ?, workspace_id = ?, start_time = ?, end_time = ? WHERE id = ?";
@@ -55,7 +55,7 @@ public final class ReservationRepository extends Repository<Reservation> {
                 int affectedRows = statement.executeUpdate();
                 return affectedRows == 0 ? -1 : id;
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Couldn't write to DB. Cause: " + e.getMessage());
             }
         }
     }

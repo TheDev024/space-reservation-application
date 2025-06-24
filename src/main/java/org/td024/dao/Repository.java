@@ -12,17 +12,6 @@ public abstract class Repository<T extends Entity> {
     protected final Connection connection;
     private final String table;
 
-    protected int getLastId() {
-        String query = "SELECT MAX(id) FROM " + table;
-        try (Statement statement = connection.createStatement()) {
-            ResultSet resultSet = statement.executeQuery(query);
-            if (resultSet.next()) return resultSet.getInt(1);
-            else return 0;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public Repository(String table) {
         this.table = table;
 
@@ -33,7 +22,18 @@ public abstract class Repository<T extends Entity> {
         try {
             connection = DriverManager.getConnection(url, username, password);
         } catch (SQLException e) {
-            throw new RuntimeException("DB Connection Failed. Cause: " + e.getMessage());
+            throw new RuntimeException("Couldn't establish connection to DB; URL: " + url + ". Cause: " + e.getMessage());
+        }
+    }
+
+    protected int getLastId() {
+        String query = "SELECT MAX(id) FROM " + table;
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+            if (resultSet.next()) return resultSet.getInt(1);
+            else return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Couldn't get last id. Cause: " + e.getMessage());
         }
     }
 
@@ -47,7 +47,7 @@ public abstract class Repository<T extends Entity> {
             if (resultSet.next()) return Optional.ofNullable(readDbObject(resultSet));
             else return Optional.empty();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Couldn't read from DB. Cause: " + e.getMessage());
         }
     }
 
@@ -63,7 +63,7 @@ public abstract class Repository<T extends Entity> {
 
             return entities;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Couldn't read from DB. Cause: " + e.getMessage());
         }
     }
 
@@ -85,7 +85,7 @@ public abstract class Repository<T extends Entity> {
             int affectedRows = statement.executeUpdate();
             return affectedRows == 1;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Couldn't delete from DB. Cause: " + e.getMessage());
         }
     }
 
