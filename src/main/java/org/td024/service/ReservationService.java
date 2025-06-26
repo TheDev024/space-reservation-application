@@ -7,7 +7,6 @@ import org.td024.entity.Workspace;
 import org.td024.exception.NotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 public final class ReservationService {
 
@@ -17,12 +16,6 @@ public final class ReservationService {
     public ReservationService(ReservationRepository repository, WorkspaceService workspaceService) {
         this.repository = repository;
         this.workspaceService = workspaceService;
-    }
-
-    public Reservation getReservationById(int id) throws NotFoundException {
-        Optional<Reservation> reservation = repository.getById(id);
-        if (reservation.isEmpty()) throw new NotFoundException("Reservation not found; ID: " + id);
-        return reservation.get();
     }
 
     public List<Reservation> getAllReservations() {

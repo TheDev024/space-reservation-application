@@ -27,13 +27,6 @@ public class Reservation implements IEntity {
         this.interval = interval;
     }
 
-    public Reservation(int id, String name, Workspace workspace, Interval interval) {
-        this.id = id;
-        this.name = name;
-        this.workspace = workspace;
-        this.interval = interval;
-    }
-
     public int getId() {
         return id;
     }
