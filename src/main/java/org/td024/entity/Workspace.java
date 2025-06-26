@@ -1,17 +1,28 @@
 package org.td024.entity;
 
+import jakarta.persistence.*;
 import org.td024.enums.WorkspaceType;
 
 import java.math.BigDecimal;
 
-public class Workspace extends Entity {
+@Entity
+public class Workspace implements IEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
+    @Column(nullable = false, unique = true, length = 100)
     private String name;
 
+    @Enumerated
+    @Column(nullable = false, length = 10)
     private WorkspaceType type;
 
+    @Column(nullable = false)
     private BigDecimal price;
+
+    protected Workspace() {
+    }
 
     public Workspace(String name, WorkspaceType type, BigDecimal price) {
         this.name = name;

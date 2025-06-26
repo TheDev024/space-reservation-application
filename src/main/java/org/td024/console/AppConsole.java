@@ -18,7 +18,7 @@ public class AppConsole {
 
     private final IntervalConsole intervalConsole = new IntervalConsole();
 
-    private final ReservationConsole reservationConsole = new ReservationConsole(workspaceService, reservationService);
+    private final ReservationConsole reservationConsole = new ReservationConsole(reservationService);
     private final WorkspaceConsole workspaceConsole = new WorkspaceConsole(workspaceService, intervalConsole);
 
     private final UserConsole userConsole = new UserConsole(workspaceConsole, reservationConsole, intervalConsole, workspaceService, reservationService);

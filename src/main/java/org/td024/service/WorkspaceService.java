@@ -12,8 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
 
-public final class WorkspaceService extends StatefulService<Workspace> {
-    private static final String STATE_FILE_PATH = ".workspaces";
+public final class WorkspaceService {
 
     private final WorkspaceRepository repository;
     private ReservationRepository reservationRepository;
@@ -24,7 +23,6 @@ public final class WorkspaceService extends StatefulService<Workspace> {
     };
 
     public WorkspaceService(WorkspaceRepository repository, ReservationRepository reservationRepository) {
-        super(STATE_FILE_PATH, repository);
         this.repository = repository;
         this.reservationRepository = reservationRepository;
     }
