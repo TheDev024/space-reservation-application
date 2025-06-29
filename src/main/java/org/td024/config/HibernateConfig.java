@@ -11,7 +11,4 @@ public class HibernateConfig {
         return ENTITY_MANAGER_FACTORY.createEntityManager();
     }
 
-    public void close() {
-        ENTITY_MANAGER_FACTORY.close();
-    }
 }
