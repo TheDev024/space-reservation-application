@@ -1,13 +1,18 @@
 package org.td024.entity;
 
+import jakarta.persistence.Embeddable;
 import org.td024.exception.InvalidTimeIntervalException;
 
 import java.io.Serializable;
 import java.util.Date;
 
+@Embeddable
 public class Interval implements Serializable {
-    private final Date startTime;
-    private final Date endTime;
+    private Date startTime;
+    private Date endTime;
+
+    protected Interval() {
+    }
 
     Interval(IntervalBuilder builder) {
         this.startTime = builder.startTime;

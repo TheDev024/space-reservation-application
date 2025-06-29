@@ -3,27 +3,19 @@ package org.td024.service;
 import org.td024.dao.ReservationRepository;
 import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
+import org.td024.entity.Workspace;
 import org.td024.exception.NotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
-public final class ReservationService extends StatefulService<Reservation> {
-    private static final String STATE_FILE_PATH = ".reservations";
+public final class ReservationService {
 
     private final ReservationRepository repository;
     private final WorkspaceService workspaceService;
 
     public ReservationService(ReservationRepository repository, WorkspaceService workspaceService) {
-        super(STATE_FILE_PATH, repository);
         this.repository = repository;
         this.workspaceService = workspaceService;
-    }
-
-    public Reservation getReservationById(int id) throws NotFoundException {
-        Optional<Reservation> reservation = repository.getById(id);
-        if (reservation.isEmpty()) throw new NotFoundException("Reservation not found; ID: " + id);
-        return reservation.get();
     }
 
     public List<Reservation> getAllReservations() {
@@ -31,7 +23,11 @@ public final class ReservationService extends StatefulService<Reservation> {
     }
 
     public void makeReservation(String name, int spaceId, Interval interval) {
-        if (!workspaceService.workspaceExists(spaceId)) {
+        Workspace workspace;
+
+        try {
+            workspace = workspaceService.getWorkspaceById(spaceId);
+        } catch (NotFoundException e) {
             System.out.println("Workspace not found!");
             return;
         }
@@ -41,10 +37,11 @@ public final class ReservationService extends StatefulService<Reservation> {
             return;
         }
 
-        Reservation reservation = new Reservation(name, spaceId, interval);
+        Reservation reservation = new Reservation(name, workspace, interval);
         int id = repository.save(reservation);
 
-        System.out.println("Reservation created successfully!\nReservation ID: " + id);
+        if (id != -1) System.out.println("Reservation made successfully!\nReservation ID: " + id);
+        else System.out.println("Reservation failed!");
     }
 
     public void cancelReservation(int id) {

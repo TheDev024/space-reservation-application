@@ -1,24 +1,29 @@
 package org.td024.entity;
 
-public class Reservation extends Entity {
-    private final String name;
+import jakarta.persistence.*;
 
-    private final int spaceId;
-
-    private final Interval interval;
-
+@Entity
+public class Reservation implements IEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    public Reservation(String name, int spaceId, Interval interval) {
-        this.name = name;
-        this.spaceId = spaceId;
-        this.interval = interval;
+    @Column(nullable = false, unique = true, length = 100)
+    private String name;
+
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private Workspace workspace;
+
+    @Embedded
+    private Interval interval;
+
+    protected Reservation() {
     }
 
-    public Reservation(int id, String name, int spaceId, Interval interval) {
-        this.id = id;
+    public Reservation(String name, Workspace workspace, Interval interval) {
         this.name = name;
-        this.spaceId = spaceId;
+        this.workspace = workspace;
         this.interval = interval;
     }
 
@@ -34,8 +39,8 @@ public class Reservation extends Entity {
         return name;
     }
 
-    public int getSpaceId() {
-        return spaceId;
+    public Workspace getWorkspace() {
+        return workspace;
     }
 
     public Interval getInterval() {
