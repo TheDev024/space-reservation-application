@@ -40,7 +40,8 @@ public final class ReservationService {
         Reservation reservation = new Reservation(name, workspace, interval);
         int id = repository.save(reservation);
 
-        System.out.println("Reservation created successfully!\nReservation ID: " + id);
+        if (id != -1) System.out.println("Reservation made successfully!\nReservation ID: " + id);
+        else System.out.println("Reservation failed!");
     }
 
     public void cancelReservation(int id) {

@@ -42,9 +42,13 @@ public abstract class Repository<T extends IEntity> {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
 
-        entityManager.persist(entity);
-
-        transaction.commit();
+        try {
+            entityManager.persist(entity);
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
+            return -1;
+        }
 
         return getLastId();
     }
