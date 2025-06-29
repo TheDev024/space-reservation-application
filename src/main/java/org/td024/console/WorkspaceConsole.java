@@ -10,8 +10,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class WorkspaceConsole {
-    private static final WorkspaceService workspaceService = new WorkspaceService();
-    private static final IntervalConsole intervalConsole = new IntervalConsole();
+    private final WorkspaceService workspaceService;
+    private final IntervalConsole intervalConsole;
+
+    public WorkspaceConsole(WorkspaceService workspaceService, IntervalConsole intervalConsole) {
+        this.workspaceService = workspaceService;
+        this.intervalConsole = intervalConsole;
+    }
 
     public void listWorkspaces() {
         System.out.println("\n== ALL WORKSPACES ==\n");

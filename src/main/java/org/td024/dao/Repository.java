@@ -1,29 +1,70 @@
 package org.td024.dao;
 
 import org.td024.entity.Entity;
-import org.td024.exception.ClassChangedException;
-import org.td024.exception.StateFileNotFoundException;
 
-import java.io.*;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 public abstract class Repository<T extends Entity> {
-    protected ArrayList<T> data;
+    private static final String DB_NAME = "spacereservationdb";
+    protected final Connection connection;
+    private final String table;
 
-    Repository(ArrayList<T> entities) {
-        data = entities;
+    public Repository(String table) {
+        this.table = table;
+
+        String url = "jdbc:postgresql://localhost:5432/" + DB_NAME;
+        String username = System.getenv("POSTGRES_USER");
+        String password = System.getenv("POSTGRES_PASSWORD");
+
+        try {
+            connection = DriverManager.getConnection(url, username, password);
+        } catch (SQLException e) {
+            throw new RuntimeException("Couldn't establish connection to DB; URL: " + url + ". Cause: " + e.getMessage());
+        }
+    }
+
+    protected int getLastId() {
+        String query = "SELECT MAX(id) FROM " + table;
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+            if (resultSet.next()) return resultSet.getInt(1);
+            else return 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Couldn't get last id. Cause: " + e.getMessage());
+        }
     }
 
     public Optional<T> getById(int id) {
-        if (id <= 0 || id > data.size()) return Optional.empty();
-        return Optional.ofNullable(data.get(id - 1));
+        String query = "SELECT * FROM " + table + " WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, id);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) return Optional.ofNullable(readDbObject(resultSet));
+            else return Optional.empty();
+        } catch (SQLException e) {
+            throw new RuntimeException("Couldn't read from DB. Cause: " + e.getMessage());
+        }
     }
 
     public List<T> getAll() {
-        return data.stream().filter(Objects::nonNull).toList();
+        String query = "SELECT * FROM " + table + " ORDER BY id";
+        try (Statement statement = connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(query);
+
+            List<T> entities = new ArrayList<>();
+            while (resultSet.next()) {
+                entities.add(readDbObject(resultSet));
+            }
+
+            return entities;
+        } catch (SQLException e) {
+            throw new RuntimeException("Couldn't read from DB. Cause: " + e.getMessage());
+        }
     }
 
     /**
@@ -31,49 +72,22 @@ public abstract class Repository<T extends Entity> {
      *
      * @return id of the created/updated entity, if not successful, -1
      */
-    public int save(T entity) {
-        int id = entity.getId();
-        if (id == 0) {
-            id = data.size() + 1;
-            entity.setId(id);
-            data.add(entity);
-        } else {
-            if (id > data.size() || id < 0 || data.get(id - 1) == null) id = -1;
-            else data.set(id - 1, entity);
-        }
-
-        return id;
-    }
+    public abstract int save(T entity);
 
     /**
      * @return if delete is successful, true, otherwise, false
      */
     public boolean delete(int id) {
-        if (id <= 0 || id > data.size()) return false;
-        return data.set(id - 1, null) != null;
-    }
+        String query = "DELETE FROM " + table + " WHERE id = ?";
+        try (PreparedStatement statement = connection.prepareStatement(query)) {
+            statement.setInt(1, id);
 
-    public void saveState(String path) throws StateFileNotFoundException {
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(path))) {
-            oos.writeObject(data);
-        } catch (IOException e) {
-            throw new StateFileNotFoundException(e.getMessage());
+            int affectedRows = statement.executeUpdate();
+            return affectedRows == 1;
+        } catch (SQLException e) {
+            throw new RuntimeException("Couldn't delete from DB. Cause: " + e.getMessage());
         }
     }
 
-    public void loadState(String path) throws ClassChangedException, StateFileNotFoundException {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(path))) {
-            ArrayList<T> data = (ArrayList<T>) ois.readObject();
-            setData(data);
-        } catch (ClassNotFoundException | ClassCastException e) {
-            throw new ClassChangedException("Class has been modified after the last run!");
-        } catch (IOException e) {
-            throw new StateFileNotFoundException("File not found to load state: " + path);
-        }
-    }
-
-    protected void setData(ArrayList<T> data) {
-        this.data.clear();
-        this.data.addAll(data);
-    }
+    protected abstract T readDbObject(ResultSet resultSet) throws SQLException;
 }

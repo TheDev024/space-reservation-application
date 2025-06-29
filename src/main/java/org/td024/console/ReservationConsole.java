@@ -12,8 +12,13 @@ import java.util.List;
 import java.util.Objects;
 
 public class ReservationConsole {
-    private static final WorkspaceService workspaceService = new WorkspaceService();
-    private static final ReservationService reservationService = new ReservationService();
+    private final WorkspaceService workspaceService;
+    private final ReservationService reservationService;
+
+    public ReservationConsole(WorkspaceService workspaceService, ReservationService reservationService) {
+        this.workspaceService = workspaceService;
+        this.reservationService = reservationService;
+    }
 
     public void listReservations() {
         System.out.println("\n== ALL RESERVATIONS ==\n");

@@ -10,12 +10,14 @@ import java.util.Optional;
 
 public final class ReservationService extends StatefulService<Reservation> {
     private static final String STATE_FILE_PATH = ".reservations";
-    private static final ReservationRepository repository = new ReservationRepository();
 
-    private static final WorkspaceService workspaceService = new WorkspaceService();
+    private final ReservationRepository repository;
+    private final WorkspaceService workspaceService;
 
-    public ReservationService() {
-        super(repository, STATE_FILE_PATH);
+    public ReservationService(ReservationRepository repository, WorkspaceService workspaceService) {
+        super(STATE_FILE_PATH, repository);
+        this.repository = repository;
+        this.workspaceService = workspaceService;
     }
 
     public Reservation getReservationById(int id) throws NotFoundException {

@@ -14,9 +14,16 @@ import java.util.List;
 import static org.td024.console.util.ConsoleReader.*;
 
 public class AdminConsole {
-    private static final WorkspaceService workspaceService = new WorkspaceService();
-    private static final WorkspaceConsole workspaceConsole = new WorkspaceConsole();
-    private static final ReservationConsole reservationConsole = new ReservationConsole();
+
+    private final WorkspaceService workspaceService;
+    private final WorkspaceConsole workspaceConsole;
+    private final ReservationConsole reservationConsole;
+
+    public AdminConsole(WorkspaceService workspaceService, WorkspaceConsole workspaceConsole, ReservationConsole reservationConsole) {
+        this.workspaceService = workspaceService;
+        this.workspaceConsole = workspaceConsole;
+        this.reservationConsole = reservationConsole;
+    }
 
 
     public void menu() {
@@ -125,7 +132,7 @@ public class AdminConsole {
         if (!name.isEmpty()) workspace.setName(name);
 
         WorkspaceType type = workspace.getType();
-        String typeStr = readLine("Enter new workspace type [" + type + "]\n(1 - OPEN; 2 - PRIVATE; 3 - ROOM)\nEnter to keep the same: ");
+        String typeStr = readLine("Enter new workspace type [" + type + "]\n(1 - OPEN; 2 - PRIVATE; 3 - ROOM; Enter to keep the same): ");
 
         if (!typeStr.isEmpty()) {
             int typeNo = Integer.parseInt(typeStr);

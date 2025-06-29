@@ -1,8 +1,6 @@
 package org.td024.entity;
 
-import java.io.Serializable;
-
-public class Reservation extends Entity implements Serializable {
+public class Reservation extends Entity {
     private final String name;
 
     private final int spaceId;
