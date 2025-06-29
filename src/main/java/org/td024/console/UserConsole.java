@@ -3,6 +3,9 @@ package org.td024.console;
 import org.td024.entity.Interval;
 import org.td024.entity.Reservation;
 import org.td024.entity.Workspace;
+import org.td024.exception.DatetimeParseException;
+import org.td024.exception.InvalidInputException;
+import org.td024.exception.InvalidTimeIntervalException;
 import org.td024.service.ReservationService;
 import org.td024.service.WorkspaceService;
 
@@ -13,11 +16,19 @@ import static org.td024.console.util.ConsoleReader.readInt;
 import static org.td024.console.util.ConsoleReader.readLine;
 
 public class UserConsole {
-    private static final WorkspaceConsole workspaceConsole = new WorkspaceConsole();
-    private static final ReservationConsole reservationConsole = new ReservationConsole();
-    private static final IntervalConsole intervalConsole = new IntervalConsole();
-    private static final ReservationService reservationService = new ReservationService();
-    private static final WorkspaceService workspaceService = new WorkspaceService();
+    private final WorkspaceConsole workspaceConsole;
+    private final ReservationConsole reservationConsole;
+    private final IntervalConsole intervalConsole;
+    private final WorkspaceService workspaceService;
+    private final ReservationService reservationService;
+
+    public UserConsole(WorkspaceConsole workspaceConsole, ReservationConsole reservationConsole, IntervalConsole intervalConsole, WorkspaceService workspaceService, ReservationService reservationService) {
+        this.workspaceConsole = workspaceConsole;
+        this.reservationConsole = reservationConsole;
+        this.intervalConsole = intervalConsole;
+        this.workspaceService = workspaceService;
+        this.reservationService = reservationService;
+    }
 
     public void menu() {
         System.out.println("\n== Welcome to the USER CONSOLE ==");
@@ -56,7 +67,14 @@ public class UserConsole {
 
     private void makeReservation() {
         System.out.println("Enter reservation interval");
-        Interval interval = intervalConsole.getInterval();
+        Interval interval;
+
+        try {
+            interval = intervalConsole.getInterval();
+        } catch (InvalidTimeIntervalException | DatetimeParseException e) {
+            System.out.println("Invalid interval: " + e.getMessage());
+            return;
+        }
 
         if (interval.getStartTime().before(new Date())) {
             System.out.println("Reservation can't be made in the past!");
@@ -70,7 +88,13 @@ public class UserConsole {
         }
 
         workspaceConsole.printWorkspaces(availableWorkspaces);
-        int spaceId = readInt("Enter workspace ID to reserve (0 - Cancel): ");
+        int spaceId;
+        try {
+            spaceId = readInt("Enter workspace ID to reserve (0 - Cancel): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
         if (spaceId == 0) return;
         String name = readLine("Enter reservation name: ");
 
@@ -97,7 +121,13 @@ public class UserConsole {
         }
         reservationConsole.printReservations(reservations);
 
-        int id = readInt("Enter reservation ID to cancel (0 - Cancel): ");
+        int id;
+        try {
+            id = readInt("Enter reservation ID to cancel (0 - Cancel): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
         if (id == 0) return;
 
         reservationService.cancelReservation(id);

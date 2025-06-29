@@ -1,6 +1,9 @@
 package org.td024.console;
 
 import org.td024.entity.Interval;
+import org.td024.entity.Interval.IntervalBuilder;
+import org.td024.exception.DatetimeParseException;
+import org.td024.exception.InvalidTimeIntervalException;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -11,7 +14,7 @@ import static org.td024.console.util.ConsoleReader.readLine;
 
 public class IntervalConsole {
 
-    public Interval getInterval() {
+    public Interval getInterval() throws InvalidTimeIntervalException, DatetimeParseException {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
         String dateStr = readLine("Enter date (yyyy-MM-dd): ");
@@ -25,10 +28,9 @@ public class IntervalConsole {
             startTime = dateFormat.parse(dateStr + " " + startTimeStr);
             endTime = dateFormat.parse(dateStr + " " + endTimeStr);
         } catch (ParseException e) {
-            System.out.println("Invalid time format!");
-            return null;
+            throw new DatetimeParseException("Invalid date or time format!");
         }
 
-        return new Interval.IntervalBuilder().startTime(startTime).endTime(endTime).build();
+        return new IntervalBuilder().startTime(startTime).endTime(endTime).build();
     }
 }

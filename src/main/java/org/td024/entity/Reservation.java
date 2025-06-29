@@ -1,16 +1,24 @@
 package org.td024.entity;
 
-public class Reservation {
+public class Reservation extends Entity {
     private final String name;
+
     private final int spaceId;
+
     private final Interval interval;
+
     private int id;
 
     public Reservation(String name, int spaceId, Interval interval) {
         this.name = name;
-
         this.spaceId = spaceId;
+        this.interval = interval;
+    }
 
+    public Reservation(int id, String name, int spaceId, Interval interval) {
+        this.id = id;
+        this.name = name;
+        this.spaceId = spaceId;
         this.interval = interval;
     }
 

@@ -1,5 +1,9 @@
 package org.td024.console.util;
 
+import org.td024.exception.InvalidInputException;
+
+import java.math.BigDecimal;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public final class ConsoleReader {
@@ -14,25 +18,37 @@ public final class ConsoleReader {
         return readLine();
     }
 
-    public static int readInt() {
-        int value = scanner.nextInt();
+    public static int readInt() throws InvalidInputException {
+        int value;
+
+        try {
+            value = scanner.nextInt();
+        } catch (InputMismatchException e) {
+            throw new InvalidInputException("Invalid input!");
+        }
+
         scanner.nextLine();
         return value;
     }
 
-    public static int readInt(String prompt) {
+    public static int readInt(String prompt) throws InvalidInputException {
         System.out.print(prompt);
         return readInt();
     }
 
-    public static double readDouble() {
-        double value = scanner.nextDouble();
+    public static BigDecimal readBigDecimal() throws InvalidInputException {
+        BigDecimal value;
+        try {
+            value = scanner.nextBigDecimal();
+        } catch (Exception e) {
+            throw new InvalidInputException("Invalid input!");
+        }
         scanner.nextLine();
         return value;
     }
 
-    public static double readDouble(String prompt) {
+    public static BigDecimal readBigDecimal(String prompt) throws InvalidInputException {
         System.out.print(prompt);
-        return readDouble();
+        return readBigDecimal();
     }
 }

@@ -2,16 +2,28 @@ package org.td024.console;
 
 import org.td024.entity.Workspace;
 import org.td024.enums.WorkspaceType;
+import org.td024.exception.InvalidInputException;
+import org.td024.exception.NotFoundException;
+import org.td024.exception.WorkspaceIsReservedException;
+import org.td024.exception.WorkspaceSaveFailed;
 import org.td024.service.WorkspaceService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.td024.console.util.ConsoleReader.*;
 
 public class AdminConsole {
-    private static final WorkspaceService workspaceService = new WorkspaceService();
-    private static final WorkspaceConsole workspaceConsole = new WorkspaceConsole();
-    private static final ReservationConsole reservationConsole = new ReservationConsole();
+
+    private final WorkspaceService workspaceService;
+    private final WorkspaceConsole workspaceConsole;
+    private final ReservationConsole reservationConsole;
+
+    public AdminConsole(WorkspaceService workspaceService, WorkspaceConsole workspaceConsole, ReservationConsole reservationConsole) {
+        this.workspaceService = workspaceService;
+        this.workspaceConsole = workspaceConsole;
+        this.reservationConsole = reservationConsole;
+    }
 
 
     public void menu() {
@@ -60,15 +72,30 @@ public class AdminConsole {
         System.out.println("\n== Create a new workspace ==\n");
 
         String name = readLine("Enter workspace name: ");
-        int typeNo = readInt("Enter workspace type (1 - OPEN; 2 - PRIVATE; 3 - ROOM): ");
+
+        int typeNo;
+        try {
+            typeNo = readInt("Enter workspace type (1 - OPEN; 2 - PRIVATE; 3 - ROOM): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
 
         WorkspaceType type = getType(typeNo);
         if (type == null) return;
 
-        double price = readDouble("Enter workspace price: ");
+        BigDecimal price;
+        try {
+            price = readBigDecimal("Enter workspace price: ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
 
         Workspace workspace = new Workspace(name, type, price);
-        workspaceService.createWorkspace(workspace);
+
+        int id = workspaceService.createWorkspace(workspace);
+        System.out.println("Workspace created successfully!\nWorkspace ID: " + id);
     }
 
     private void editWorkspace() {
@@ -81,17 +108,31 @@ public class AdminConsole {
         }
         workspaceConsole.printWorkspaces(workspaces);
 
-        int id = readInt("Enter workspace ID to edit (0 - Cancel): ");
+        int id;
+
+        try {
+            id = readInt("Enter workspace ID to edit (0 - Cancel): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
         if (id == 0) return;
 
-        Workspace workspace = workspaceService.getWorkspaceById(id);
+        Workspace workspace;
+        try {
+            workspace = workspaceService.getWorkspaceById(id);
+        } catch (NotFoundException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
 
         String name = workspace.getName();
         name = readLine("Enter new workspace name [" + name + "] (Enter to keep the same): ");
         if (!name.isEmpty()) workspace.setName(name);
 
         WorkspaceType type = workspace.getType();
-        String typeStr = readLine("Enter new workspace type [" + type + "]\n(1 - OPEN; 2 - PRIVATE; 3 - ROOM)\nEnter to keep the same: ");
+        String typeStr = readLine("Enter new workspace type [" + type + "]\n(1 - OPEN; 2 - PRIVATE; 3 - ROOM; Enter to keep the same): ");
 
         if (!typeStr.isEmpty()) {
             int typeNo = Integer.parseInt(typeStr);
@@ -103,11 +144,16 @@ public class AdminConsole {
             workspace.setType(type);
         }
 
-        double price = workspace.getPrice();
+        BigDecimal price = workspace.getPrice();
         String newPrice = readLine("Enter new workspace price [" + price + "] (Enter to keep the same): ");
-        if (!newPrice.isEmpty()) workspace.setPrice(Double.parseDouble(newPrice));
+        if (!newPrice.isEmpty()) workspace.setPrice(new BigDecimal(newPrice));
 
-        workspaceService.editWorkspace(id, workspace);
+        try {
+            workspaceService.editWorkspace(id, workspace);
+            System.out.println("Workspace updated successfully!");
+        } catch (WorkspaceSaveFailed e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private void deleteWorkspace() {
@@ -120,10 +166,24 @@ public class AdminConsole {
         }
         workspaceConsole.printWorkspaces(workspaces);
 
-        int id = readInt("Enter workspace ID to delete (0 - Cancel): ");
+        int id;
+
+        try {
+            id = readInt("Enter workspace ID to delete (0 - Cancel): ");
+        } catch (InvalidInputException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
         if (id == 0) return;
 
-        workspaceService.deleteWorkspace(id);
+        try {
+            boolean deleted = workspaceService.deleteWorkspace(id);
+            if (deleted) System.out.println("Workspace deleted successfully!");
+            else System.out.println("Workspace not found; ID: " + id);
+        } catch (WorkspaceIsReservedException e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private WorkspaceType getType(int typeNo) {
