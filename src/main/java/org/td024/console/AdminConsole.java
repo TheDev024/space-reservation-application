@@ -95,7 +95,8 @@ public class AdminConsole {
         Workspace workspace = new Workspace(name, type, price);
 
         int id = workspaceService.createWorkspace(workspace);
-        System.out.println("Workspace created successfully!\nWorkspace ID: " + id);
+        if (id != -1) System.out.println("Workspace created successfully!\nWorkspace ID: " + id);
+        else System.out.println("Workspace creation failed!");
     }
 
     private void editWorkspace() {
